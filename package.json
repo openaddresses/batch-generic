@@ -1,0 +1,28 @@
+{
+    "name": "@openaddresses/batch-generic",
+    "version": "1.0.0",
+    "description": "JSON Schema based ORM for Slonik",
+    "main": "generic.js",
+    "scripts": {
+        "lint": "eslint generic.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/openaddresses/batch-generic.git"
+    },
+    "author": "Nick Ingalls <nick@ingalls.ca>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/openaddresses/batch-generic/issues"
+    },
+    "homepage": "https://github.com/openaddresses/batch-generic#readme",
+    "peerDependencies": {
+        "@openaddresses/batch-schema": "2.x.x",
+        "slonik": "27.x.x"
+    },
+    "devDependencies": {
+        "eslint": "^8.6.0",
+        "eslint-plugin-node": "^11.1.0"
+    }
+}
