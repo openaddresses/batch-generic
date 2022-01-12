@@ -4,6 +4,10 @@ const { sql } = require('slonik');
 
 /**
  * @class
+ *
+ * @prop {string} _table    Postgres Table name
+ * @prop {Object} _res      Result JSON Schema
+ * @prop {Object} _patch    Patch JSON Schema
  */
 class Generic {
     constructor() {
@@ -12,6 +16,57 @@ class Generic {
         this._patch = this.constructor._patch;
     }
 
+    /**
+     * Return a paginated list of objects from a given table
+     *
+     * @param {Pool} pool       Slonik Pool
+     * @param {Object} query                Query Object
+     * @param {number} [query.limit=100]    Limit number of results
+     * @param {number} [query.page=0]       Offset Page
+     * @param {number} [query.sort=id]      Sort Column
+     * @param {number} [query.order=asc]    Sort Order
+     *
+     * @returns {Object}
+     */
+    static async list(pool, query = {}) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
+        if (!query.limit) query.limit = 100;
+        if (!query.page) query.page = 0;
+        if (!query.sort) query.sort = 'id';
+        if (!query.order || query.order === 'asc') {
+            query.order = sql`asc`;
+        } else {
+            query.order = sql`desc`;
+        }
+
+        let pgres;
+        try {
+            pgres = await pool.query(sql`
+                SELECT
+                    count(*) OVER() AS count,
+                    *
+                FROM
+                    ${sql.identifier([this._table])}
+                ORDER BY
+                    ${sql.identifier([query.sort])} ${query.order}
+                LIMIT
+                    ${query.limit}
+                OFFSET
+                    ${query.limit * query.page}
+            `);
+        } catch (err) {
+            throw new Err(500, err, `Failed to list from ${this._table}`);
+        }
+
+        return this.deserialize(pgres.rows);
+    }
+
+    /**
+     * Apply a given object to the base
+     *
+     * @param {Object} patch Patch body to apply
+     */
     patch(patch) {
         if (!this._patch) throw new Err(500, null, 'Internal: Patch not defined');
 
@@ -22,6 +77,14 @@ class Generic {
         }
     }
 
+    /**
+     * Return a single Object given an ID
+     *
+     * @param {Pool} pool       Slonik Pool
+     * @param {number} id       ID of object to retrieve
+     *
+     * @returns {Generic}
+     */
     static async from(pool, id) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
@@ -46,6 +109,11 @@ class Generic {
         return this.deserialize(pgres.rows[0]);
     }
 
+    /**
+     * Serialize an object into JSON
+     *
+     * @return {Object}
+     */
     serialize() {
         if (!this._res) throw new Err(500, null, 'Internal: Res not defined');
         if (this._res.type !== 'object') throw new Err(500, null, 'Only Object Serialization Supported');
@@ -59,6 +127,14 @@ class Generic {
         return res;
     }
 
+    /**
+     * Deserialize a Postgres Row into an object
+     *
+     * @param {Object} dbrow
+     * @param {Object} alias
+     *
+     * @returns {Generic}
+     */
     static deserialize(dbrow, alias) {
         // Return a list style result
         if (Array.isArray(dbrow)) {
@@ -97,6 +173,13 @@ class Generic {
         }
     }
 
+    /**
+     * Delete a given object from the database
+     *
+     * @param {Pool} pool       Slonik Pool
+     *
+     * @returns {boolean}
+     */
     async delete(pool) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 

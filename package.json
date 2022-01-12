@@ -4,8 +4,10 @@
     "description": "JSON Schema based ORM for Slonik",
     "main": "generic.js",
     "scripts": {
-        "lint": "eslint generic.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
+        "lint-doc": "documentation lint generic.js",
+        "lint": "eslint generic.js test/**.js",
+        "test": "tape test/**.test.js"
     },
     "repository": {
         "type": "git",
@@ -23,6 +25,8 @@
     },
     "devDependencies": {
         "eslint": "^8.6.0",
-        "eslint-plugin-node": "^11.1.0"
+        "eslint-plugin-node": "^11.1.0",
+        "documentation": "^13.2.5",
+        "tape": "^5.4.0"
     }
 }
