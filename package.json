@@ -1,6 +1,6 @@
 {
     "name": "@openaddresses/batch-generic",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "description": "JSON Schema based ORM for Slonik",
     "main": "generic.js",
     "scripts": {
@@ -24,9 +24,9 @@
         "slonik": "27.x.x"
     },
     "devDependencies": {
+        "documentation": "^13.2.5",
         "eslint": "^8.6.0",
         "eslint-plugin-node": "^11.1.0",
-        "documentation": "^13.2.5",
         "tape": "^5.4.0"
     }
 }
