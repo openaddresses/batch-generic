@@ -28,7 +28,7 @@ class Generic {
      *
      * @returns {Object}
      */
-    static async list(pool, query={}) {
+    static async list(pool, query = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
         if (!query.limit) query.limit = 100;
@@ -44,6 +44,7 @@ class Generic {
         try {
             pgres = await pool.query(sql`
                 SELECT
+                    count(*) OVER() AS count,
                     *
                 FROM
                     ${sql.identifier([this._table])}
@@ -131,6 +132,8 @@ class Generic {
      *
      * @param {Object} dbrow
      * @param {Object} alias
+     *
+     * @returns {Generic}
      */
     static deserialize(dbrow, alias) {
         // Return a list style result
