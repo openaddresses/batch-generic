@@ -12,6 +12,39 @@ class Generic {
         this._patch = this.constructor._patch;
     }
 
+    static list(pool, query={}) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
+        if (!query.limit) query.limit = 100;
+        if (!query.page) query.page = 0;
+        if (!query.sort) query.sort = 'id';
+        if (!query.order || query.order === 'asc') {
+            query.order = sql`asc`;
+        } else {
+            query.order = sql`desc`;
+        }
+
+        let pgres;
+        try {
+            pgres = await pool.query(sql`
+                SELECT
+                    *
+                FROM
+                    ${sql.identifier([this._table])}
+                ORDER BY
+                    ${sql.identifier([query.sort])} ${query.order}
+                LIMIT
+                    ${query.limit}
+                OFFSET
+                    ${query.limit * query.page}
+            `);
+        } catch (err) {
+            throw new Err(500, err, `Failed to list from ${this._table}`);
+        }
+
+        return this.deserialize(pgres.rows);
+    }
+
     patch(patch) {
         if (!this._patch) throw new Err(500, null, 'Internal: Patch not defined');
 
