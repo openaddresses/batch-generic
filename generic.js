@@ -1,6 +1,7 @@
 'use strict';
 const { Err } = require('@openaddresses/batch-schema');
 const { sql } = require('slonik');
+const { Transform } = require('stream');
 
 /**
  * @class
@@ -15,6 +16,51 @@ class Generic {
         this._res = this.constructor._res;
         this._patch = this.constructor._patch;
     }
+
+    /**
+     * Return a stream of JSON features
+     *
+     * @param {Pool} pool       Slonik Pool
+     * @param {Object} query                Query Object
+     * @param {number} [query.sort=id]      Sort Column
+     * @param {number} [query.order=asc]    Sort Order
+     */
+    static stream(pool, query={}, handler) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (typeof query === 'function') {
+            handler = query;
+            query = {};
+        }
+
+        if (!query.sort) query.sort = 'id';
+        if (!query.order || query.order === 'asc') {
+            query.order = sql`asc`;
+        } else {
+            query.order = sql`desc`;
+        }
+
+        return new Promise((resolve, reject) => {
+            pool.stream(sql`
+                SELECT
+                    *
+                FROM
+                    ${sql.identifier([this._table])}
+                ORDER BY
+                    ${sql.identifier([query.sort])} ${query.order}
+            `, (stream) => {
+                const obj = new Transform({
+                    objectMode: true,
+                    transform: (chunk, encoding, cb) => {
+                        return cb(null, this.deserialize(chunk.row));
+                    }
+                });
+
+                stream.pipe(obj);
+                return resolve(obj);
+            });
+        });
+    }
+
 
     /**
      * Return a paginated list of objects from a given table

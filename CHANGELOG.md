@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v1.1.0
+
+- :tada: Add ability for generic `list(<pool>, <query>)` fn
+- :white_check_mark: Framework testing strategy
+
 ### v1.0.0
 
 - :rocket: Intial Release
