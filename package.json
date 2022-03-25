@@ -1,6 +1,6 @@
 {
     "name": "@openaddresses/batch-generic",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "JSON Schema based ORM for Slonik",
     "main": "generic.js",
     "scripts": {
