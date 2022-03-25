@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.2.1
+
+- :arrow_up: Update base deps
+
 ### v1.2.0
 - :tada: Add support for object streams
 
