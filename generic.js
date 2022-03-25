@@ -24,13 +24,11 @@ class Generic {
      * @param {Object} query                Query Object
      * @param {number} [query.sort=id]      Sort Column
      * @param {number} [query.order=asc]    Sort Order
+     *
+     * @return {Stream}
      */
-    static stream(pool, query={}, handler) {
+    static stream(pool, query = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
-        if (typeof query === 'function') {
-            handler = query;
-            query = {};
-        }
 
         if (!query.sort) query.sort = 'id';
         if (!query.order || query.order === 'asc') {
@@ -39,7 +37,7 @@ class Generic {
             query.order = sql`desc`;
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             pool.stream(sql`
                 SELECT
                     *

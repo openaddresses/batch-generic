@@ -47,7 +47,7 @@ test('Create Table', async (t) => {
 
 test('Dog.stream', (t) => {
     Dog.stream(pool).then((stream) => {
-        let dogs = []
+        const dogs = [];
 
         stream.on('data', (dog) => {
             dogs.push(dog);
