@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.3.0
+
+- :rocket: Fix ESLint errors and remove unused fn params
+
 ### v1.2.1
 
 - :arrow_up: Update base deps
