@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v2.0.0
+
+- :arrow_up: `slonik@28` peerDependency
+
 ### v1.3.0
 
 - :rocket: Fix ESLint errors and remove unused fn params
