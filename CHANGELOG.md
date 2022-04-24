@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v3.0.0
+
+- :rocket: Update ES Module System
+
 ### v2.0.0
 
 - :arrow_up: `slonik@28` peerDependency
