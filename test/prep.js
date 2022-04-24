@@ -1,7 +1,5 @@
-'use strict';
-
-const test = require('tape');
-const { sql, createPool } = require('slonik');
+import test from 'tape';
+import { sql, createPool } from 'slonik';
 
 test('Create Database', async (t) => {
     const pool = createPool('postgres://postgres@localhost:5432/postgres');
