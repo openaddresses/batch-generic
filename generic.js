@@ -239,4 +239,26 @@ export default class Generic {
             throw new Err(500, err, `Failed to delete from ${this._table}`);
         }
     }
+
+    /**
+     * Remove all items from the table
+     *
+     * @param {Pool} pool       Slonik Pool
+     *
+     * @returns {boolean}
+     */
+    static async clear(pool) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
+        try {
+            await pool.query(sql`
+                DELETE FROM ${sql.identifier([this._table])}
+            `);
+
+            return true;
+        } catch (err) {
+            if (err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
+            throw new Err(500, err, `Failed to delete from ${this._table}`);
+        }
+    }
 }
