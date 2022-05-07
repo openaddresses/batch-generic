@@ -1,7 +1,6 @@
-'use strict';
-const { Err } = require('@openaddresses/batch-schema');
-const { sql } = require('slonik');
-const { Transform } = require('stream');
+import { Err } from '@openaddresses/batch-schema';
+import { sql } from 'slonik';
+import { Transform } from 'stream';
 
 /**
  * @class
@@ -10,7 +9,7 @@ const { Transform } = require('stream');
  * @prop {Object} _res      Result JSON Schema
  * @prop {Object} _patch    Patch JSON Schema
  */
-class Generic {
+export default class Generic {
     constructor() {
         this._table = this.constructor._table;
         this._res = this.constructor._res;
@@ -240,6 +239,26 @@ class Generic {
             throw new Err(500, err, `Failed to delete from ${this._table}`);
         }
     }
-}
 
-module.exports = Generic;
+    /**
+     * Remove all items from the table
+     *
+     * @param {Pool} pool       Slonik Pool
+     *
+     * @returns {boolean}
+     */
+    static async clear(pool) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
+        try {
+            await pool.query(sql`
+                DELETE FROM ${sql.identifier([this._table])}
+            `);
+
+            return true;
+        } catch (err) {
+            if (err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
+            throw new Err(500, err, `Failed to delete from ${this._table}`);
+        }
+    }
+}

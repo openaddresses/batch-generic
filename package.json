@@ -1,6 +1,7 @@
 {
     "name": "@openaddresses/batch-generic",
-    "version": "2.0.0",
+    "type": "module",
+    "version": "3.0.0",
     "description": "JSON Schema based ORM for Slonik",
     "main": "generic.js",
     "scripts": {
@@ -20,7 +21,7 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "@openaddresses/batch-schema": "2.x.x",
+        "@openaddresses/batch-schema": "^3.0.0",
         "slonik": "28.x.x"
     },
     "devDependencies": {

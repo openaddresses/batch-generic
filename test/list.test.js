@@ -1,10 +1,8 @@
-'use strict';
+import test from 'tape';
+import { sql, createPool } from 'slonik';
+import { Dog } from './base.js';
 
-const test = require('tape');
-const { sql, createPool } = require('slonik');
-const { Dog } = require('./base');
-
-require('./prep');
+import './prep.js';
 
 let pool;
 
