@@ -19,10 +19,10 @@ export default class Generic {
     /**
      * Return a stream of JSON features
      *
-     * @param {Pool} pool       Slonik Pool
-     * @param {Object} query                Query Object
-     * @param {number} [query.sort=id]      Sort Column
-     * @param {number} [query.order=asc]    Sort Order
+     * @param {Pool}        pool                Slonik Pool
+     * @param {Object}      query               Query Object
+     * @param {number}      [query.sort=id]         Sort Column
+     * @param {number}      [query.order=asc]       Sort Order
      *
      * @return {Stream}
      */
@@ -123,9 +123,8 @@ export default class Generic {
     /**
      * Return a single Object given an ID
      *
-     * @param {Pool} pool       Slonik Pool
-     * @param {number} id       ID of object to retrieve
-     *
+     * @param {Pool}    pool                Slonik Pool
+     * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
      * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
      *
@@ -217,6 +216,35 @@ export default class Generic {
             }
 
             return single;
+        }
+    }
+
+    /**
+     * Delete a given object from the database without first retrieving the object
+     *
+     * @param {Pool}    pool                Slonik Pool
+     * @param {number}  id                  ID of object to retrieve
+     * @param {Object}  opts                Options
+     * @param {String}  [opts.column=id]        Delete by an alternate column/field
+     *
+     * @returns {boolean}
+     */
+    static async delete(pool, id, opts = {}) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!opts.column) opts.column = 'id';
+
+        try {
+
+            await pool.query(sql`
+                DELETE FROM ${sql.identifier([this._table])}
+                    WHERE
+                        ${sql.identifier([this._table, opts.column])} = ${id}
+            `);
+
+            return true;
+        } catch (err) {
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
+            throw new Err(500, err, `Failed to delete from ${this._table}`);
         }
     }
 
