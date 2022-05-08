@@ -126,10 +126,14 @@ export default class Generic {
      * @param {Pool} pool       Slonik Pool
      * @param {number} id       ID of object to retrieve
      *
+     * @param {Object}  opts                Options
+     * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
+     *
      * @returns {Generic}
      */
-    static async from(pool, id) {
+    static async from(pool, id, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!opts.column) opts.column = 'id';
 
         let pgres;
         try {
@@ -139,7 +143,7 @@ export default class Generic {
                 FROM
                     ${sql.identifier([this._table])}
                 WHERE
-                    id = ${id}
+                    ${sql.identifier([this._table, opts.column])} = ${id}
             `);
         } catch (err) {
             throw new Err(500, err, `Failed to load from ${this._table}`);
@@ -219,18 +223,22 @@ export default class Generic {
     /**
      * Delete a given object from the database
      *
-     * @param {Pool} pool       Slonik Pool
+     * @param {Pool}    pool                Slonik Pool
+     * @param {Object}  opts                Options
+     * @param {String}  [opts.column=id]        Delete by an alternate column/field
      *
      * @returns {boolean}
      */
-    async delete(pool) {
+    async delete(pool, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!opts.column) opts.column = 'id';
 
         try {
+
             await pool.query(sql`
                 DELETE FROM ${sql.identifier([this._table])}
                     WHERE
-                        id = ${this.id}
+                        ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
             `);
 
             return true;
@@ -258,7 +266,7 @@ export default class Generic {
             return true;
         } catch (err) {
             if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
-            throw new Err(500, err, `Failed to delete from ${this._table}`);
+            throw new Err(500, err, `Failed to clear ${this._table}`);
         }
     }
 }
