@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v3.2.0
+
+- :tada: Add the ability to `from` & `delete` via a custom column (default: `id`)
+- :tada: Add a static `delete()` function
+
 ### v3.1.1
 
 - :bug: ensure `originalError` is present when performing error code checks
