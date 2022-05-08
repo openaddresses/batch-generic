@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v3.1.1
+
+- :bug: ensure `originalError` is present when performing error code checks
+
 ### v3.1.0
 
 - :tada: Add `.clear()` function to allow clearing all entries in a table
