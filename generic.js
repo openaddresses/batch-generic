@@ -235,7 +235,7 @@ export default class Generic {
 
             return true;
         } catch (err) {
-            if (err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
             throw new Err(500, err, `Failed to delete from ${this._table}`);
         }
     }
@@ -257,7 +257,7 @@ export default class Generic {
 
             return true;
         } catch (err) {
-            if (err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
             throw new Err(500, err, `Failed to delete from ${this._table}`);
         }
     }

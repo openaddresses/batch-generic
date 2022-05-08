@@ -37,7 +37,7 @@ test('Create Table', async (t) => {
 
 test('Dog.clear()', async (t) => {
     try {
-        const dog = await Dog.clear(pool);
+        await Dog.clear(pool);
     } catch (err) {
         t.error(err);
     }
