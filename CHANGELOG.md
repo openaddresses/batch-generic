@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v3.2.1
+- :rocket: Add automated npm releases
+
 ### v3.2.0
 
 - :tada: Add the ability to `from` & `delete` via a custom column (default: `id`)
