@@ -121,7 +121,7 @@ export default class Generic {
             }
 
             cols.push(sql.identifier([f]));
-            commits.push(sql`${sql.identifier([f])} = ${value}`);
+            commits.push(sql`${value}`);
         }
 
         let pgres;

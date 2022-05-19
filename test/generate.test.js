@@ -43,13 +43,11 @@ test('Dog.generate', async (t) => {
 
         t.equals(dog2.id, 1);
         t.equals(dog2.name, 'prairie');
-        t.equals(dog2.species, 'lab');
+        t.equals(dog2.species, 'mutt');
         t.equals(dog2.loyalty, 10);
         t.equals(dog2.cute, true);
         t.equals(dog2.smart, 100);
-        t.deepEquals(dog2.attr, {
-            test: true
-        });
+        t.deepEquals(dog2.attr, {});
     } catch (err) {
         t.error(err);
     }
