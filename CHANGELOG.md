@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v3.4.1
+
+- :bug: Minor test updates to allow sequential test runs for GH Actions
+
 ### v3.4.0
 
 - :tada: Add `generic.generate`
