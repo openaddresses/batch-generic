@@ -10,7 +10,12 @@
 
 ## Version History
 
+### v3.3.0
+
+- :tada: Add `generic.commit`
+
 ### v3.2.1
+
 - :rocket: Add automated npm releases
 
 ### v3.2.0
