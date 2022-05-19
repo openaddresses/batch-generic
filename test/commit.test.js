@@ -2,7 +2,8 @@ import test from 'tape';
 import { sql, createPool } from 'slonik';
 import { Dog } from './base.js';
 
-import './prep.js';
+import prep from './prep.js';
+prep(test);
 
 let pool;
 

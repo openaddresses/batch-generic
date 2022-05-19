@@ -2,7 +2,8 @@ import test from 'tape';
 import { sql, createPool } from 'slonik';
 import { Dog } from './base.js';
 
-import './prep.js';
+import prep from './prep.js';
+prep(test);
 
 let pool;
 
@@ -30,7 +31,7 @@ test('Create Table', async (t) => {
 
 test('Dog.generate', async (t) => {
     try {
-        const dog = await Dog.generate(pool, {
+        await Dog.generate(pool, {
             name: 'prairie',
             species: 'mutt',
             loyalty: 10,
