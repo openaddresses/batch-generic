@@ -128,7 +128,7 @@ export default class Generic {
      * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
      */
-    async commit(pool, opts={}, patch) {
+    async commit(pool, opts = {}, patch) {
         if (patch) this.patch(patch);
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
@@ -142,7 +142,7 @@ export default class Generic {
                 value = JSON.stringify(this[f]);
             }
 
-            commits.push(sql`${sql.identifier([f])} = ${value}`)
+            commits.push(sql`${sql.identifier([f])} = ${value}`);
         }
 
         let pgres;
@@ -154,10 +154,16 @@ export default class Generic {
                     ${sql.join(commits, sql`, `)}
                 WHERE
                     ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
+                RETURNING
+                    *
             `);
+
+            this.patch(pgres.rows[0]);
         } catch (err) {
-            throw new Err(500, err, `Failed to commit to ${this._table}`)
+            throw new Err(500, err, `Failed to commit to ${this._table}`);
         }
+
+        return this;
     }
 
     /**
