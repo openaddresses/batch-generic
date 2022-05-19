@@ -106,6 +106,46 @@ export default class Generic {
     }
 
     /**
+     * Commit a given object back into the database
+     *
+     * @param {Pool}    pool                Slonik Pool
+     * @param {Object}  base                Object containing base properties
+     */
+    static async generate(pool, base) {
+        const commits = [];
+        const cols = [];
+        for (const f in base) {
+            let value = base[f];
+            if (typeof base[f] === 'object') {
+                value = JSON.stringify(base[f]);
+            }
+
+            cols.push(sql.identifier([f]));
+            commits.push(sql`${sql.identifier([f])} = ${value}`);
+        }
+
+        let pgres;
+        try {
+            pgres = await pool.query(sql`
+                INSERT INTO ${sql.identifier([this._table])} (
+                    ${sql.join(cols, sql`, `)}
+                ) VALUES (
+                    ${sql.join(commits, sql`, `)}
+                )
+                RETURNING
+                    *
+            `);
+
+            const nbase = this.deserialize(pgres.rows[0]);
+            nbase._fields = this._fields(pgres.fields);
+
+            return nbase;
+        } catch (err) {
+            throw new Err(500, err, `Failed to commit to ${this._table}`);
+        }
+    }
+
+    /**
      * Apply a given object to the base
      *
      * @param {Object} patch Patch body to apply
