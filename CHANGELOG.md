@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v3.4.0
+
+- :tada: Add `generic.generate`
+
 ### v3.3.0
 
 - :tada: Add `generic.commit`
