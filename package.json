@@ -22,7 +22,8 @@
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
         "@openaddresses/batch-schema": "^3.0.0",
-        "slonik": "28.x.x"
+        "slonik": "28.x.x",
+        "pg": "^8.x.x"
     },
     "devDependencies": {
         "documentation": "^13.2.5",
