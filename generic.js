@@ -121,6 +121,46 @@ export default class Generic {
     }
 
     /**
+     * Commit a given object back into the database
+     *
+     * @param {Pool}    pool                Slonik Pool
+     * @param {Object}  opts                Options
+     * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
+     * @param {Object}  [patch]             Optionally patch & commit in the same operation
+     */
+    async commit(pool, opts={}, patch) {
+        if (patch) this.patch(patch);
+        if (!opts) opts = {};
+        if (!opts.column) opts.column = 'id';
+
+        if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
+
+        const commits = [];
+        for (const f of this._fields.keys()) {
+            let value = this[f];
+            if (typeof this[f] === 'object') {
+                value = JSON.stringify(this[f]);
+            }
+
+            commits.push(sql`${sql.identifier([f])} = ${value}`)
+        }
+
+        let pgres;
+        try {
+            pgres = await pool.query(sql`
+                UPDATE
+                    ${sql.identifier([this._table])}
+                SET
+                    ${sql.join(commits, sql`, `)}
+                WHERE
+                    ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
+            `);
+        } catch (err) {
+            throw new Err(500, err, `Failed to commit to ${this._table}`)
+        }
+    }
+
+    /**
      * Return a single Object given an ID
      *
      * @param {Pool}    pool                Slonik Pool
@@ -152,7 +192,26 @@ export default class Generic {
             throw new Err(404, null, `${this._table} not found`);
         }
 
-        return this.deserialize(pgres.rows[0]);
+        const base = this.deserialize(pgres.rows[0]);
+        base._fields = this._fields(pgres.fields);
+        return base;
+    }
+
+    /**
+     * Convert postgres field types into parsers for potential auto commit
+     * Note: Internal use only, breaking changes can be made without major release
+     *
+     * @param {Array[]} fields Postgres Fields directly from node-pg/slonik
+     * @return {Map} Map of field names => parsers
+     */
+    static _fields(fields) {
+        const parsers = new Map();
+
+        for (const f of fields) {
+            parsers.set(f.name, f.dataTypeId);
+        }
+
+        return parsers;
     }
 
     /**
