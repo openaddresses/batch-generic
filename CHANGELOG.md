@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v4.0.0
+
+- :arrow_up: `@openaddresses/batch-schema` >= 4 now required
+
 ### v3.4.1
 
 - :bug: Minor test updates to allow sequential test runs for GH Actions
