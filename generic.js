@@ -238,6 +238,8 @@ export default class Generic {
      * @param {Object} fields       Field/Type mapping
      * @param {Object} base         Base object to insert
      * @param {String} f            Key to process
+     *
+     * @returns {Object} SQL Value
      */
     static _format(fields, base, f) {
         let value = base[f];
@@ -246,9 +248,7 @@ export default class Generic {
         }
 
         if (fields.get(f) === PG.types.builtins.TIMESTAMP) {
-            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`
-        } else if (fields.get(f) === PG.types.builtins.TIMESTAMP) {
-            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`
+            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
         } else {
             return sql`${value}`;
         }
