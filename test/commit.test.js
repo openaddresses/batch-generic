@@ -19,7 +19,9 @@ test('Create Table', async (t) => {
                 loyalty     INTEGER NOT NULL DEFAULT 10,
                 cute        BOOLEAN NOT NULL DEFAULT True,
                 smart       BIGINT NOT NULL DEFAULT 100,
-                attr        JSON NOT NULL DEFAULT '{}'::JSON
+                attr        JSON NOT NULL DEFAULT '{}'::JSON,
+                created     TIMESTAMP NOT NULL DEFAULT NOW(),
+                updated     TIMESTAMP NOT NULL DEFAULT NOW()
             );
         `);
 
@@ -65,6 +67,9 @@ test('Dog.commit', async (t) => {
         t.deepEquals(dog2.attr, {
             test: true
         });
+
+        t.ok(dog2.created);
+        t.ok(dog2.updated);
     } catch (err) {
         t.error(err);
     }
