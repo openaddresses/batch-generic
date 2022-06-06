@@ -1,6 +1,7 @@
 import { Err } from '@openaddresses/batch-schema';
 import { sql } from 'slonik';
 import { Transform } from 'stream';
+import PG from 'pg';
 
 /**
  * @class
@@ -58,7 +59,6 @@ export default class Generic {
         });
     }
 
-
     /**
      * Return a paginated list of objects from a given table
      *
@@ -114,14 +114,10 @@ export default class Generic {
     static async generate(pool, base) {
         const commits = [];
         const cols = [];
-        for (const f in base) {
-            let value = base[f];
-            if (typeof base[f] === 'object') {
-                value = JSON.stringify(base[f]);
-            }
 
+        for (const f in base) {
             cols.push(sql.identifier([f]));
-            commits.push(sql`${value}`);
+            commits.push(Generic._format(this._fields, base, f));
         }
 
         let pgres;
@@ -138,8 +134,6 @@ export default class Generic {
 
             const nbase = this.deserialize(pgres.rows[0]);
             nbase._fields = this._fields(pgres.fields);
-
-            return nbase;
         } catch (err) {
             throw new Err(500, err, `Failed to commit to ${this._table}`);
         }
@@ -177,12 +171,7 @@ export default class Generic {
 
         const commits = [];
         for (const f of this._fields.keys()) {
-            let value = this[f];
-            if (typeof this[f] === 'object') {
-                value = JSON.stringify(this[f]);
-            }
-
-            commits.push(sql`${sql.identifier([f])} = ${value}`);
+            commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
         }
 
         let pgres;
@@ -241,6 +230,28 @@ export default class Generic {
         const base = this.deserialize(pgres.rows[0]);
         base._fields = this._fields(pgres.fields);
         return base;
+    }
+
+    /**
+     * Format an input SQL statement
+     *
+     * @param {Object} fields       Field/Type mapping
+     * @param {Object} base         Base object to insert
+     * @param {String} f            Key to process
+     *
+     * @returns {Object} SQL Value
+     */
+    static _format(fields, base, f) {
+        let value = base[f];
+        if (typeof base[f] === 'object') {
+            value = JSON.stringify(base[f]);
+        }
+
+        if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
+            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
+        } else {
+            return sql`${value}`;
+        }
     }
 
     /**

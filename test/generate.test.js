@@ -8,7 +8,7 @@ prep(test);
 let pool;
 
 test('Create Table', async (t) => {
-    pool = createPool('postgres://postgres@localhost:5432/batch_generic');
+    pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
@@ -19,7 +19,9 @@ test('Create Table', async (t) => {
                 loyalty     INTEGER NOT NULL DEFAULT 9,
                 cute        BOOLEAN NOT NULL DEFAULT False,
                 smart       BIGINT NOT NULL DEFAULT 99,
-                attr        JSON NOT NULL DEFAULT '{}'::JSON
+                attr        JSON NOT NULL DEFAULT '{}'::JSON,
+                created     TIMESTAMP NOT NULL DEFAULT NOW(),
+                updated     TIMESTAMP NOT NULL DEFAULT NOW()
             );
         `);
     } catch (err) {
@@ -49,6 +51,9 @@ test('Dog.generate', async (t) => {
         t.equals(dog2.cute, true);
         t.equals(dog2.smart, 100);
         t.deepEquals(dog2.attr, {});
+
+        t.ok(dog2.created);
+        t.ok(dog2.updated);
     } catch (err) {
         t.error(err);
     }

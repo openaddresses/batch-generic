@@ -17,13 +17,22 @@ jobs:
               with:
                   ref: ${{ github.event.pull_request.head.sha }}
 
-            - uses: actions/setup-node@v2
-              with:
-                node-version: '18'
+            - name: Docker Pull
+              run: docker-compose pull
 
-            - run: npm install
+            - name: Docker Build
+              run: docker-compose up --build -d postgis
 
-            - run: npm run lint
+            - name: Docker API Build
+              run: docker build -t api .
 
-            - run: npm test
+            - name: Docker API Test Run
+              run: docker run --network batch-generic_default -e "POSTGRES=postgres://docker:docker@postgis:5432/gis" api npm test
+
+            - name: Docker API Lint Run
+              run: docker run --network batch-generic_default -e "POSTGRES=postgres://docker:docker@postgis:5432/gis" api npm run lint
+
+            - name: Docker Cleanup
+              run: docker-compose kill
+
 
