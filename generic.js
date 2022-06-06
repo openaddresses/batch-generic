@@ -172,8 +172,15 @@ export default class Generic {
         if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
 
         const commits = [];
-        for (const f of this._fields.keys()) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
+
+        if (patch) {
+            for (const f in patch ) {
+                commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
+            }
+        } else {
+            for (const f of this._fields.keys()) {
+                commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
+            }
         }
 
         let pgres;
