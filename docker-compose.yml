@@ -27,4 +27,4 @@ services:
             - POSTGRES_MULTIPLE_EXTENSIONS="postgis","uuid-ossp"
             - DATADIR=/opt/postgres/data
         volumes:
-            - ./postgis-data:/opt/postgres/data
+            - ./node_modules/postgis-data:/opt/postgres/data
