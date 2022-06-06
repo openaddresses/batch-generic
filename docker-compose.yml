@@ -3,17 +3,15 @@ version: '3'
 services:
     api:
         platform: linux/amd64
-        build: ./api/
+        build: .
         restart: always
         links:
             - postgis
-        ports:
-            - "5000:5000"
         environment:
             - POSTGRES=postgres://docker:docker@postgis:5432/gis
         volumes:
-            - './api/:/home/uploader/api'
-            - '/home/uploader/api/node_modules'
+            - './:/home/generic/api'
+            - '/home/generic/api/node_modules'
 
     postgis:
         platform: linux/amd64
