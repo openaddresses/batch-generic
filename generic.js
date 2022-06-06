@@ -247,7 +247,7 @@ export default class Generic {
             value = JSON.stringify(base[f]);
         }
 
-        if (fields.get(f) === PG.types.builtins.TIMESTAMP) {
+        if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
             return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
         } else {
             return sql`${value}`;
