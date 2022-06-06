@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v4.2.0
+
+- :rocket: Optimize commit SQL if `patch` param is passed
+
 ### v4.1.1
 
 - :bug: Return nbase on generate
