@@ -2,16 +2,25 @@ import { sql, createPool } from 'slonik';
 
 export default function prep(test) {
     test('Create Database', async (t) => {
-        const pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/postgres');
+        const pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
         try {
-            await pool.query(sql`
-                DROP DATABASE IF EXISTS batch_generic;
+            const pgres = await pool.query(sql`
+                SELECT
+                    tablename AS table
+                FROM
+                    pg_tables
+                WHERE
+                    schemaname = 'public'
+                    AND tablename != 'spatial_ref_sys'
             `);
 
-            await pool.query(sql`
-                CREATE DATABASE batch_generic;
-            `);
+            for (const r of pgres.rows) {
+                await pool.query(sql`
+                    DROP TABLE ${sql.identifier([r.table])}
+                        CASCADE
+                `);
+            }
         } catch (err) {
             t.error(err);
         }
