@@ -134,6 +134,8 @@ export default class Generic {
 
             const nbase = this.deserialize(pgres.rows[0]);
             nbase._fields = this._fields(pgres.fields);
+
+            return nbase;
         } catch (err) {
             throw new Err(500, err, `Failed to commit to ${this._table}`);
         }
