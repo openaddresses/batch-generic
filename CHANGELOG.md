@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v4.1.1
+
+- :bug: Return nbase on generate
+
 ### v4.1.0
 
 - :tada: Add support for automatically commiting JS Timestamps (ms => s)
