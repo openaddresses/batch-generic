@@ -9,9 +9,6 @@ services:
             - postgis
         environment:
             - POSTGRES=postgres://docker:docker@postgis:5432/gis
-        volumes:
-            - './:/home/generic/api'
-            - '/home/generic/api/node_modules'
 
     postgis:
         platform: linux/amd64
