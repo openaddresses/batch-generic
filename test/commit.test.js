@@ -8,7 +8,7 @@ prep(test);
 let pool;
 
 test('Create Table', async (t) => {
-    pool = createPool('postgres://postgres@localhost:5432/batch_generic');
+    pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
