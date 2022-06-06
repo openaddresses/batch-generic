@@ -10,6 +10,13 @@
 
 ## Version History
 
+### v4.1.0
+
+- :tada: Add support for automatically commiting JS Timestamps (ms => s)
+- :white_check_mark: Add Dockerfile & Docker Compose for running tests on CI
+- :arrow_up: Update base deps
+
+
 ### v4.0.0
 
 - :arrow_up: `@openaddresses/batch-schema` >= 4 now required
