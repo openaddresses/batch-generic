@@ -5,7 +5,7 @@ WORKDIR $HOME
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata \
-    && apt-get install -y nginx curl python python3 build-essential
+    && apt-get install -y nginx curl python3 build-essential
 
 RUN export NODEV='18.2.0' \
     && curl "https://nodejs.org/dist/v${NODEV}/node-v${NODEV}-linux-x64.tar.gz" | tar -xzv \
