@@ -49,7 +49,7 @@ export default class Generic {
                 const obj = new Transform({
                     objectMode: true,
                     transform: (chunk, encoding, cb) => {
-                        return cb(null, this.deserialize(chunk.row));
+                        return cb(null, this.deserialize(chunk));
                     }
                 });
 
@@ -102,7 +102,7 @@ export default class Generic {
             throw new Err(500, err, `Failed to list from ${this._table}`);
         }
 
-        return this.deserialize(pgres.rows);
+        return this.deserialize_list(pgres);
     }
 
     /**
@@ -132,10 +132,7 @@ export default class Generic {
                     *
             `);
 
-            const nbase = this.deserialize(pgres.rows[0]);
-            nbase._fields = this._fields(pgres.fields);
-
-            return nbase;
+            return this.deserialize(pgres);
         } catch (err) {
             throw new Err(500, err, `Failed to commit to ${this._table}`);
         }
@@ -149,7 +146,7 @@ export default class Generic {
     patch(patch) {
         if (!this._patch) throw new Err(500, null, 'Internal: Patch not defined');
 
-        for (const attr of Object.keys(this._patch.properties)) {
+        for (const attr in this._patch.properties) {
             if (patch[attr] !== undefined) {
                 this[attr] = patch[attr];
             }
@@ -164,7 +161,7 @@ export default class Generic {
      * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
      */
-    async commit(pool, opts = {}, patch) {
+    async commit(pool, opts = {}, patch = {}) {
         if (patch) this.patch(patch);
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
@@ -174,7 +171,7 @@ export default class Generic {
         const commits = [];
 
         if (patch) {
-            for (const f in patch ) {
+            for (const f in patch) {
                 commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
             }
         } else {
@@ -236,9 +233,7 @@ export default class Generic {
             throw new Err(404, null, `${this._table} not found`);
         }
 
-        const base = this.deserialize(pgres.rows[0]);
-        base._fields = this._fields(pgres.fields);
-        return base;
+        return this.deserialize(pgres);
     }
 
     /**
@@ -299,49 +294,57 @@ export default class Generic {
     }
 
     /**
-     * Deserialize a Postgres Row into an object
+     * Deserialize Postgres Rows into an object
      *
-     * @param {Object} dbrow
+     * @param {Object} pgres
      * @param {Object} alias
      *
      * @returns {Generic}
      */
-    static deserialize(dbrow, alias) {
-        // Return a list style result
-        if (Array.isArray(dbrow)) {
-            const res = {
-                total: dbrow.length
-            };
+    static deserialize_list(pgres, alias) {
+        const res = {
+            total: pgres.rows.length
+        };
 
-            if (dbrow[0] && dbrow[0].count && !isNaN(parseInt(dbrow[0].count))) {
-                res.total = parseInt(dbrow[0].count);
-            }
-
-            res[alias || this._table || 'items'] = [];
-
-            for (const row of dbrow) {
-                const single = {};
-                delete row.count;
-
-                for (const key of Object.keys(row)) {
-                    single[key] = row[key];
-                }
-
-                res[alias || this._table || 'items'].push(single);
-            }
-
-            return res;
-
-        // Return a single Class result
-        } else {
-            const single = new this();
-
-            for (const key of Object.keys(dbrow)) {
-                single[key] = dbrow[key];
-            }
-
-            return single;
+        if (pgres.rows[0] && pgres.rows[0].count && !isNaN(parseInt(pgres.rows[0].count))) {
+            res.total = parseInt(pgres.rows[0].count);
         }
+
+        res[alias || this._table || 'items'] = [];
+
+        for (const row of pgres.rows) {
+            const single = {};
+            delete row.count;
+
+            for (const key of Object.keys(row)) {
+                single[key] = row[key];
+            }
+
+            res[alias || this._table || 'items'].push(single);
+        }
+
+        return res;
+    }
+
+    /**
+     * Deserialize a Postgres Row into an object
+     *
+     * @param {Object} pgres
+     *
+     * @returns {Generic}
+     */
+    static deserialize(pgres) {
+        const single = new this();
+
+        const row = pgres.rows ? pgres.rows[0] : pgres.row;
+
+        for (const key of Object.keys(row)) {
+            single[key] = row[key];
+        }
+
+        single._fields = this._fields(pgres.fields);
+
+        return single;
     }
 
     /**
