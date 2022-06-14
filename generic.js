@@ -161,7 +161,7 @@ export default class Generic {
      * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
      */
-    async commit(pool, opts={}, patch={}) {
+    async commit(pool, opts = {}, patch = {}) {
         if (patch) this.patch(patch);
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
