@@ -170,15 +170,13 @@ export default class Generic {
 
         const commits = [];
 
-        if (patch) {
-            for (const f in patch) {
-                commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
-            }
-        } else {
-            for (const f of this._fields.keys()) {
-                commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
-            }
+        let keys = Object.keys(patch).length ? Object.keys(patch) : this._fields.keys();
+
+        for (const f of keys) {
+            commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
         }
+
+        if (!commits.length) return this;
 
         let pgres;
         try {
@@ -247,12 +245,16 @@ export default class Generic {
      */
     static _format(fields, base, f) {
         let value = base[f];
-        if (typeof base[f] === 'object') {
+        if (typeof base[f] === 'object' && base[f] !== null) {
             value = JSON.stringify(base[f]);
         }
 
         if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
             return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
+        } else if (fields instanceof Map && (value === null || value === undefined)) {
+            return sql`NULL`;
+        } else if (value === null || value === undefined) {
+            return sql`NULL`;
         } else {
             return sql`${value}`;
         }
