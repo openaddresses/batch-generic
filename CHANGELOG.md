@@ -10,7 +10,11 @@
 
 ## Version History
 
-### 5.0.0
+### v5.0.1
+- :bug: Fix NULL insertions
+- :arrow_up: Update base deps
+
+### v5.0.0
 
 - :rocket: Move the `_fields` generation to the `deserialize` function to ensure that overriding the default generate or from functions still benefit from the default commit fn
 - :rocket: Move list responses to `deserialize_list`
