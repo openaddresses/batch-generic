@@ -1,6 +1,7 @@
 import test from 'tape';
-import { sql, createPool } from 'slonik';
+import { sql } from 'slonik';
 import { Dog } from './base.js';
+import { Pool } from '../generic.js';
 
 import prep from './prep.js';
 prep(test);
@@ -8,7 +9,7 @@ prep(test);
 let pool;
 
 test('Create Table', async (t) => {
-    pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+    pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`

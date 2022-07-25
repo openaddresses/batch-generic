@@ -7,7 +7,7 @@
     "scripts": {
         "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
         "lint-doc": "documentation lint generic.js",
-        "lint": "eslint generic.js test/**.js",
+        "lint": "eslint generic.js test/**.js lib/**.js",
         "test": "tape test/**.test.js"
     },
     "repository": {
@@ -30,5 +30,9 @@
         "eslint": "^8.6.0",
         "eslint-plugin-node": "^11.1.0",
         "tape": "^5.4.0"
+    },
+    "dependencies": {
+        "@turf/bbox": "^6.5.0",
+        "wkx": "^0.5.0"
     }
 }
