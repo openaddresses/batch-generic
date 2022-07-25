@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v5.1.0
+- :tada: Add support for Generic.Pool connection configuration
+
 ### v5.0.1
 - :bug: Fix NULL insertions
 - :arrow_up: Update base deps
