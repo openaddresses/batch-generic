@@ -2,6 +2,9 @@ import { Err } from '@openaddresses/batch-schema';
 import { sql } from 'slonik';
 import { Transform } from 'stream';
 import PG from 'pg';
+import Pool from './lib/pool.js';
+
+export { Pool };
 
 /**
  * @class
@@ -99,7 +102,7 @@ export default class Generic {
                     ${query.limit * query.page}
             `);
         } catch (err) {
-            throw new Err(500, err, `Failed to list from ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to list from ${this._table}`);
         }
 
         return this.deserialize_list(pgres);
@@ -134,7 +137,7 @@ export default class Generic {
 
             return this.deserialize(pgres);
         } catch (err) {
-            throw new Err(500, err, `Failed to commit to ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
     }
 
@@ -158,7 +161,7 @@ export default class Generic {
      *
      * @param {Pool}    pool                Slonik Pool
      * @param {Object}  opts                Options
-     * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
+     * @param {string}  [opts.column=id]        Retrieve by an alternate column/field
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
      */
     async commit(pool, opts = {}, patch = {}) {
@@ -192,7 +195,7 @@ export default class Generic {
 
             this.patch(pgres.rows[0]);
         } catch (err) {
-            throw new Err(500, err, `Failed to commit to ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
 
         return this;
@@ -204,7 +207,7 @@ export default class Generic {
      * @param {Pool}    pool                Slonik Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
-     * @param {String}  [opts.column=id]        Retrieve by an alternate column/field
+     * @param {string}  [opts.column=id]        Retrieve by an alternate column/field
      *
      * @returns {Generic}
      */
@@ -223,7 +226,7 @@ export default class Generic {
                     ${sql.identifier([this._table, opts.column])} = ${id}
             `);
         } catch (err) {
-            throw new Err(500, err, `Failed to load from ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to load from ${this._table}`);
         }
 
         if (!pgres.rows.length) {
@@ -238,7 +241,7 @@ export default class Generic {
      *
      * @param {Object} fields       Field/Type mapping
      * @param {Object} base         Base object to insert
-     * @param {String} f            Key to process
+     * @param {string} f            Key to process
      *
      * @returns {Object} SQL Value
      */
@@ -354,7 +357,7 @@ export default class Generic {
      * @param {Pool}    pool                Slonik Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
-     * @param {String}  [opts.column=id]        Delete by an alternate column/field
+     * @param {string}  [opts.column=id]        Delete by an alternate column/field
      *
      * @returns {boolean}
      */
@@ -372,8 +375,8 @@ export default class Generic {
 
             return true;
         } catch (err) {
-            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
-            throw new Err(500, err, `Failed to delete from ${this._table}`);
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, new Error(err), `${this._table} is still in use`);
+            throw new Err(500, new Error(err), `Failed to delete from ${this._table}`);
         }
     }
 
@@ -382,7 +385,7 @@ export default class Generic {
      *
      * @param {Pool}    pool                Slonik Pool
      * @param {Object}  opts                Options
-     * @param {String}  [opts.column=id]        Delete by an alternate column/field
+     * @param {string}  [opts.column=id]        Delete by an alternate column/field
      *
      * @returns {boolean}
      */
@@ -400,8 +403,8 @@ export default class Generic {
 
             return true;
         } catch (err) {
-            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
-            throw new Err(500, err, `Failed to delete from ${this._table}`);
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, new Error(err), `${this._table} is still in use`);
+            throw new Err(500, new Error(err), `Failed to delete from ${this._table}`);
         }
     }
 
@@ -422,8 +425,8 @@ export default class Generic {
 
             return true;
         } catch (err) {
-            if (err.originalError && err.originalError.code === '23503') throw new Err(400, err, `${this._table} is still in use`);
-            throw new Err(500, err, `Failed to clear ${this._table}`);
+            if (err.originalError && err.originalError.code === '23503') throw new Err(400, new Error(err), `${this._table} is still in use`);
+            throw new Err(500, new Error(err), `Failed to clear ${this._table}`);
         }
     }
 }
