@@ -2,7 +2,7 @@ import { sql, createPool } from 'slonik';
 
 export default function prep(test) {
     test('Create Database', async (t) => {
-        const pool = createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+        const pool = await createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
         try {
             const pgres = await pool.query(sql`
