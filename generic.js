@@ -247,11 +247,12 @@ export default class Generic {
      */
     static _format(fields, base, f) {
         let value = base[f];
-        if (typeof base[f] === 'object' && base[f] !== null) {
-            value = JSON.stringify(base[f]);
-        }
 
-        if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
+        if (value.sql && value.type && value.values) {
+            return value;
+        } else if (typeof value === 'object' && value !== null) {
+            return `${JSON.stringify(value)}`;
+        } else if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
             return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
         } else if (fields instanceof Map && (value === null || value === undefined)) {
             return sql`NULL`;

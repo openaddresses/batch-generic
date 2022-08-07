@@ -23,7 +23,7 @@
     "peerDependencies": {
         "@openaddresses/batch-schema": "^4.0.0",
         "pg": "^8.x.x",
-        "slonik": "29.x.x"
+        "slonik": "30.x.x"
     },
     "devDependencies": {
         "documentation": "^13.2.5",

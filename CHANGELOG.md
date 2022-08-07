@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v7.0.0
+
+- :arrow_up: `Slonik@30`
+- :rocket: Allow `sql` values to be passed through unchanged
+
 ### v6.0.0
 
 - :arrow_up: `Slonik@29`
