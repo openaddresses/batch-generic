@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.0.1
+
+- :bug: `slonik.createPool` now returns a promise
+
 ### v7.0.0
 
 - :arrow_up: `Slonik@30`
