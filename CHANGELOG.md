@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.1.1
+
+- :arrow_up: Update base deps
+
 ### v7.1.0
 
 - :tada: Add ability to patch/commit fields which are not present in the JSON schema
@@ -106,12 +110,15 @@
 - :arrow_up: Update base deps
 
 ### v1.2.0
+
 - :tada: Add support for object streams
 
 ### v1.1.0
+
 - :tada: Add ability for generic `list(<pool>, <query>)` fn
 - :white_check_mark: Framework testing strategy
 
 ### v1.0.0
+
 - :rocket: Intial Release
 
