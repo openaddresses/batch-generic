@@ -52,9 +52,13 @@ test('Dog.commit', async (t) => {
         t.equals(dog.smart, 100);
         t.deepEquals(dog.attr, {});
 
-        await dog.commit(pool, null, {
+        const update_orig = parseInt(dog.created);
+        await dog.commit(pool, {
+            override: ['updated']
+        }, {
             attr: { test: true },
-            species: 'lab'
+            species: 'lab',
+            updated: sql`NOW() + (INTERVAL '5 minutes')`
         });
 
         const dog2 = await Dog.from(pool, 1);
@@ -69,8 +73,8 @@ test('Dog.commit', async (t) => {
             test: true
         });
 
-        t.ok(dog2.created);
-        t.ok(dog2.updated);
+        t.equals(dog2.created, dog.created);
+        t.notEquals(update_orig, dog2.updated);
     } catch (err) {
         t.error(err);
     }

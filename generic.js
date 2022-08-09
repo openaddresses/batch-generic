@@ -145,13 +145,28 @@ export default class Generic {
      * Apply a given object to the base
      *
      * @param {Object} patch Patch body to apply
+     * @param {Object}  opts                Options
+     * @param {string[]}    [opts.override=]    Patch fields that are not present in the Patch JSON Schema onto the object
      */
-    patch(patch) {
-        if (!this._patch) throw new Err(500, null, 'Internal: Patch not defined');
+    patch(patch, opts) {
+        if (!opts) opts = {};
+        if (!opts.override) opts.override = null;
 
-        for (const attr in this._patch.properties) {
-            if (patch[attr] !== undefined) {
-                this[attr] = patch[attr];
+        if (!this._patch && !opts.override) throw new Err(500, null, 'Internal: Patch not defined');
+
+        if (this._patch) {
+            for (const attr in this._patch.properties) {
+                if (patch[attr] !== undefined) {
+                    this[attr] = patch[attr];
+                }
+            }
+        }
+
+        if (opts.override) {
+            for (const attr of opts.override) {
+                if (patch[attr] !== undefined) {
+                    this[attr] = patch[attr];
+                }
             }
         }
     }
@@ -161,13 +176,18 @@ export default class Generic {
      *
      * @param {Pool}    pool                Slonik Pool
      * @param {Object}  opts                Options
-     * @param {string}  [opts.column=id]        Retrieve by an alternate column/field
+     * @param {string}      [opts.column=id]    Retrieve by an alternate column/field
+     * @param {string[]}    [opts.override=]    Patch fields that are not present in the Patch JSON Schema onto the object
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
      */
     async commit(pool, opts = {}, patch = {}) {
-        if (patch) this.patch(patch);
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
+        if (!opts.override) opts.override = null;
+
+        if (patch) this.patch(patch, {
+            override: opts.override
+        });
 
         if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
 
@@ -193,7 +213,9 @@ export default class Generic {
                     *
             `);
 
-            this.patch(pgres.rows[0]);
+            this.patch(pgres.rows[0], {
+                override: opts.override
+            });
         } catch (err) {
             throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
@@ -246,7 +268,7 @@ export default class Generic {
      * @returns {Object} SQL Value
      */
     static _format(fields, base, f) {
-        let value = base[f];
+        const value = base[f];
 
         if (value.sql && value.type && value.values) {
             return value;

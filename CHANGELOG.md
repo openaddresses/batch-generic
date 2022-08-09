@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.1.0
+
+- :tada: Add ability to patch/commit fields which are not present in the JSON schema
+
 ### v7.0.1
 
 - :bug: `slonik.createPool` now returns a promise
