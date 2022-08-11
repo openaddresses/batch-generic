@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.2.1
+
+- :bug: Fix sql type check
+
 ### v7.2.0
 
 - :tada: Add configurable retry for `Pool.connect`
