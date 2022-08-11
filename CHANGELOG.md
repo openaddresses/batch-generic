@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.2.2
+
+- :bug: Fix sql type check when value is null
+
 ### v7.2.1
 
 - :bug: Fix sql type check
