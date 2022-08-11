@@ -270,7 +270,7 @@ export default class Generic {
     static _format(fields, base, f) {
         const value = base[f];
 
-        if (typeof value === 'object' && value.sql && value.type && value.values) {
+        if (typeof value === 'object' && value && value.sql && value.type && value.values) {
             return value;
         } else if (typeof value === 'object' && value !== null) {
             return `${JSON.stringify(value)}`;
