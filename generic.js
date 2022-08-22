@@ -24,7 +24,7 @@ export default class Generic {
     /**
      * Return a stream of JSON features
      *
-     * @param {Pool}        pool                Slonik Pool
+     * @param {Pool}        pool                Generic Pool
      * @param {Object}      query               Query Object
      * @param {number}      [query.sort=id]         Sort Column
      * @param {number}      [query.order=asc]       Sort Order
@@ -66,7 +66,7 @@ export default class Generic {
     /**
      * Return a paginated list of objects from a given table
      *
-     * @param {Pool} pool       Slonik Pool
+     * @param {Pool} pool       Generic Pool
      * @param {Object} query                Query Object
      * @param {number} [query.limit=100]    Limit number of results
      * @param {number} [query.page=0]       Offset Page
@@ -112,7 +112,7 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {Object}  base                Object containing base properties
      */
     static async generate(pool, base) {
@@ -175,7 +175,7 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {Object}  opts                Options
      * @param {string}      [opts.column=id]    Retrieve by an alternate column/field
      * @param {string[]}    [opts.override=]    Patch fields that are not present in the Patch JSON Schema onto the object
@@ -227,7 +227,7 @@ export default class Generic {
     /**
      * Return a single Object given an ID
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Retrieve by an alternate column/field
@@ -378,7 +378,7 @@ export default class Generic {
     /**
      * Delete a given object from the database without first retrieving the object
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Delete by an alternate column/field
@@ -407,7 +407,7 @@ export default class Generic {
     /**
      * Delete a given object from the database
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Delete by an alternate column/field
      *
@@ -435,7 +435,7 @@ export default class Generic {
     /**
      * Remove all items from the table
      *
-     * @param {Pool} pool       Slonik Pool
+     * @param {Pool} pool       Generic Pool
      *
      * @returns {boolean}
      */
