@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v7.3.0
+
+- :tada: Add basic concept for parsing SQL query parameters
+
 ### v7.2.2
 
 - :bug: Fix sql type check when value is null
