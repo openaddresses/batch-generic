@@ -6,10 +6,8 @@ import { Pool } from '../generic.js';
 import prep from './prep.js';
 prep(test);
 
-let pool;
-
 test('Create Table', async (t) => {
-    pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
@@ -37,10 +35,13 @@ test('Create Table', async (t) => {
         t.error(err);
     }
 
+    await pool.end();
     t.end();
 });
 
 test('Dog.commit', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
     try {
         const dog = await Dog.from(pool, 1);
 
@@ -53,9 +54,7 @@ test('Dog.commit', async (t) => {
         t.deepEquals(dog.attr, {});
 
         const update_orig = parseInt(dog.created);
-        await dog.commit(pool, {
-            override: ['updated']
-        }, {
+        await dog.commit(pool, null, {
             attr: { test: true },
             species: 'lab',
             updated: sql`NOW() + (INTERVAL '5 minutes')`
@@ -79,11 +78,6 @@ test('Dog.commit', async (t) => {
         t.error(err);
     }
 
-
-    t.end();
-});
-
-test('Cleanup', async (t) => {
     await pool.end();
     t.end();
 });

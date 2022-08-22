@@ -6,10 +6,8 @@ import { Pool } from '../generic.js';
 import prep from './prep.js';
 prep(test);
 
-let pool;
-
 test('Create Table', async (t) => {
-    pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
@@ -42,10 +40,13 @@ test('Create Table', async (t) => {
         t.error(err);
     }
 
+    await pool.end();
     t.end();
 });
 
-test('Dog.stream', (t) => {
+test('Dog.stream', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
     Dog.stream(pool).then((stream) => {
         const dogs = [];
 
@@ -56,14 +57,9 @@ test('Dog.stream', (t) => {
         }).on('close', () => {
             t.equals(dogs[0].id, 1);
             t.equals(dogs[1].id, 2);
-            t.end();
         });
-    }).catch((err) => {
+    }).catch(async (err) => {
+        await pool.end();
         t.error(err);
     });
-});
-
-test('Cleanup', async (t) => {
-    await pool.end();
-    t.end();
 });

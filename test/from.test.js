@@ -6,10 +6,8 @@ import { Pool } from '../generic.js';
 import prep from './prep.js';
 prep(test);
 
-let pool;
-
 test('Create Table', async (t) => {
-    pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
@@ -34,10 +32,13 @@ test('Create Table', async (t) => {
         t.error(err);
     }
 
+    await pool.end();
     t.end();
 });
 
 test('Dog.from', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
     try {
         const dog = await Dog.from(pool, 1);
 
@@ -59,10 +60,6 @@ test('Dog.from', async (t) => {
         t.equals(err.safe, 'Internal: Res not defined');
     }
 
-    t.end();
-});
-
-test('Cleanup', async (t) => {
     await pool.end();
     t.end();
 });
