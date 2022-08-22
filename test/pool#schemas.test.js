@@ -58,6 +58,7 @@ test('Pool.schemas', async (t) => {
                         cute: { type: 'boolean' },
                         smart: { type: 'number' },
                         attr: { type: 'object' },
+                        tags: { type: 'array', items: { type: ['object', 'null'] }},
                         created: { type: 'string', format: 'date-time' },
                         updated: { type: 'string', format: 'date-time' }
                     },
@@ -69,6 +70,7 @@ test('Pool.schemas', async (t) => {
                         'cute',
                         'smart',
                         'attr',
+                        'tags',
                         'created',
                         'updated'
                     ]
