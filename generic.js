@@ -3,8 +3,9 @@ import { sql } from 'slonik';
 import { Transform } from 'stream';
 import PG from 'pg';
 import Pool from './lib/pool.js';
+import Params from './lib/params.js';
 
-export { Pool };
+export { Pool, Params };
 
 /**
  * @class
