@@ -1663,7 +1663,7 @@ Note: Internal use only, breaking changes can be made without major release</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>new Pool(pool: any, connstr: any)</div>
+    <div class='pre p1 fill-light mt0'>new Pool(pool: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>, connstr: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</div>
   
   
 
@@ -1680,16 +1680,18 @@ Note: Internal use only, breaking changes can be made without major release</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>pool</span> <code class='quiet'>(any)</code>
-	    
+            <span class='code bold'>pool</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+	    Slonik Pool
+
           </div>
           
         </div>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>connstr</span> <code class='quiet'>(any)</code>
-	    
+            <span class='code bold'>connstr</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    Postgres Connection String
+
           </div>
           
         </div>
@@ -1697,6 +1699,32 @@ Note: Internal use only, breaking changes can be made without major release</p>
     </div>
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>_pool</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+          : Slonik Pool
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>_connstr</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+          : Postgres Connection String
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>_schemas</span> <code class='quiet'>((<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a> | null)?)</code>
+          : Parsed JSON Schemas
+
+          
+        </div>
+      
+    </div>
   
 
   
