@@ -147,7 +147,7 @@ export default class Generic {
      *
      * @param {Object} patch Patch body to apply
      */
-    patch(patch) {
+    #patch(patch) {
         for (const attr in this._res.properties) {
             if (patch[attr] !== undefined) {
                 this[attr] = patch[attr];
@@ -158,21 +158,20 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Object}  opts                Options
-     * @param {string}      [opts.column=id]    Retrieve by an alternate column/field
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
+     * @param {Object}  opts                Options
+     * @param {string}  [opts.column=id]    Retrieve by an alternate column/field
      */
-    async commit(opts = {}, patch = {}) {
+    async commit(patch = {}, opts = {}) {
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
 
-        if (patch) this.patch(patch);
+        if (patch) this.#patch(patch);
 
         if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
 
         const commits = [];
 
-        console.error(patch);
         const keys = Object.keys(patch).length ? Object.keys(patch) : this._fields.keys();
         for (const f of keys) {
             commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
@@ -193,7 +192,7 @@ export default class Generic {
                     *
             `);
 
-            this.patch(pgres.rows[0]);
+            this.#patch(pgres.rows[0]);
         } catch (err) {
             throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }

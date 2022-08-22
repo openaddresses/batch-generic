@@ -54,7 +54,7 @@ test('Dog.commit', async (t) => {
         t.deepEquals(dog.attr, {});
 
         const update_orig = parseInt(dog.created);
-        await dog.commit(pool, null, {
+        await dog.commit({
             attr: { test: true },
             species: 'lab',
             updated: sql`NOW() + (INTERVAL '5 minutes')`

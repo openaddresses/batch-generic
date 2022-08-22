@@ -52,14 +52,6 @@ test('Dog.from', async (t) => {
         t.error(err);
     }
 
-    try {
-        const dog = await Dog.from(pool, 1);
-        dog.serialize();
-        t.fail();
-    } catch (err) {
-        t.equals(err.safe, 'Internal: Res not defined');
-    }
-
     await pool.end();
     t.end();
 });
