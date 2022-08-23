@@ -53,17 +53,13 @@ test('Dog.stream', (t) => {
             dogs.push(dog);
         }).on('error', (err) => {
             t.error(err);
-        }).on('close', () => {
+        }).on('close', async () => {
             t.equals(dogs[0].id, 1);
             t.equals(dogs[1].id, 2);
+            await pool.end();
             t.end();
         });
     }).catch((err) => {
         t.error(err);
     });
-});
-
-test('Cleanup', async (t) => {
-    await pool.end();
-    t.end();
 });

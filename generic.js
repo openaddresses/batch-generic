@@ -12,19 +12,19 @@ export { Pool, Params };
  *
  * @prop {string} _table    Postgres Table name
  * @prop {Object} _res      Result JSON Schema
- * @prop {Object} _patch    Patch JSON Schema
+ * @prop {Pool} _pool     Generic Pool
  */
 export default class Generic {
-    constructor() {
+    constructor(pool) {
+        this._pool = pool;
         this._table = this.constructor._table;
-        this._res = this.constructor._res;
-        this._patch = this.constructor._patch;
+        this._res = this._pool._schemas.tables[this._table];
     }
 
     /**
      * Return a stream of JSON features
      *
-     * @param {Pool}        pool                Slonik Pool
+     * @param {Pool}        pool                Generic Pool
      * @param {Object}      query               Query Object
      * @param {number}      [query.sort=id]         Sort Column
      * @param {number}      [query.order=asc]       Sort Order
@@ -53,7 +53,7 @@ export default class Generic {
                 const obj = new Transform({
                     objectMode: true,
                     transform: (chunk, encoding, cb) => {
-                        return cb(null, this.deserialize(chunk));
+                        return cb(null, this.deserialize(pool, chunk));
                     }
                 });
 
@@ -66,7 +66,7 @@ export default class Generic {
     /**
      * Return a paginated list of objects from a given table
      *
-     * @param {Pool} pool       Slonik Pool
+     * @param {Pool} pool       Generic Pool
      * @param {Object} query                Query Object
      * @param {number} [query.limit=100]    Limit number of results
      * @param {number} [query.page=0]       Offset Page
@@ -112,7 +112,7 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {Object}  base                Object containing base properties
      */
     static async generate(pool, base) {
@@ -136,7 +136,7 @@ export default class Generic {
                     *
             `);
 
-            return this.deserialize(pgres);
+            return this.deserialize(pool, pgres);
         } catch (err) {
             throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
@@ -146,28 +146,11 @@ export default class Generic {
      * Apply a given object to the base
      *
      * @param {Object} patch Patch body to apply
-     * @param {Object}  opts                Options
-     * @param {string[]}    [opts.override=]    Patch fields that are not present in the Patch JSON Schema onto the object
      */
-    patch(patch, opts) {
-        if (!opts) opts = {};
-        if (!opts.override) opts.override = null;
-
-        if (!this._patch && !opts.override) throw new Err(500, null, 'Internal: Patch not defined');
-
-        if (this._patch) {
-            for (const attr in this._patch.properties) {
-                if (patch[attr] !== undefined) {
-                    this[attr] = patch[attr];
-                }
-            }
-        }
-
-        if (opts.override) {
-            for (const attr of opts.override) {
-                if (patch[attr] !== undefined) {
-                    this[attr] = patch[attr];
-                }
+    #patch(patch) {
+        for (const attr in this._res.properties) {
+            if (patch[attr] !== undefined) {
+                this[attr] = patch[attr];
             }
         }
     }
@@ -175,20 +158,15 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Pool}    pool                Slonik Pool
-     * @param {Object}  opts                Options
-     * @param {string}      [opts.column=id]    Retrieve by an alternate column/field
-     * @param {string[]}    [opts.override=]    Patch fields that are not present in the Patch JSON Schema onto the object
      * @param {Object}  [patch]             Optionally patch & commit in the same operation
+     * @param {Object}  opts                Options
+     * @param {string}  [opts.column=id]    Retrieve by an alternate column/field
      */
-    async commit(pool, opts = {}, patch = {}) {
+    async commit(patch = {}, opts = {}) {
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
-        if (!opts.override) opts.override = null;
 
-        if (patch) this.patch(patch, {
-            override: opts.override
-        });
+        if (patch) this.#patch(patch);
 
         if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
 
@@ -203,7 +181,7 @@ export default class Generic {
 
         let pgres;
         try {
-            pgres = await pool.query(sql`
+            pgres = await this._pool.query(sql`
                 UPDATE
                     ${sql.identifier([this._table])}
                 SET
@@ -214,9 +192,7 @@ export default class Generic {
                     *
             `);
 
-            this.patch(pgres.rows[0], {
-                override: opts.override
-            });
+            this.#patch(pgres.rows[0]);
         } catch (err) {
             throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
@@ -227,7 +203,7 @@ export default class Generic {
     /**
      * Return a single Object given an ID
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Retrieve by an alternate column/field
@@ -256,7 +232,7 @@ export default class Generic {
             throw new Err(404, null, `${this._table} not found`);
         }
 
-        return this.deserialize(pgres);
+        return this.deserialize(pool, pgres);
     }
 
     /**
@@ -357,12 +333,13 @@ export default class Generic {
     /**
      * Deserialize a Postgres Row into an object
      *
+     * @param {Pool}    pool                Generic Pool
      * @param {Object} pgres
      *
      * @returns {Generic}
      */
-    static deserialize(pgres) {
-        const single = new this();
+    static deserialize(pool, pgres) {
+        const single = new this(pool);
 
         const row = pgres.rows ? pgres.rows[0] : pgres.row;
 
@@ -378,7 +355,7 @@ export default class Generic {
     /**
      * Delete a given object from the database without first retrieving the object
      *
-     * @param {Pool}    pool                Slonik Pool
+     * @param {Pool}    pool                Generic Pool
      * @param {number}  id                  ID of object to retrieve
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Delete by an alternate column/field
@@ -407,19 +384,18 @@ export default class Generic {
     /**
      * Delete a given object from the database
      *
-     * @param {Pool}    pool                Slonik Pool
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]        Delete by an alternate column/field
      *
      * @returns {boolean}
      */
-    async delete(pool, opts = {}) {
+    async delete(opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!opts.column) opts.column = 'id';
 
         try {
 
-            await pool.query(sql`
+            await this._pool.query(sql`
                 DELETE FROM ${sql.identifier([this._table])}
                     WHERE
                         ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
@@ -435,7 +411,7 @@ export default class Generic {
     /**
      * Remove all items from the table
      *
-     * @param {Pool} pool       Slonik Pool
+     * @param {Pool} pool       Generic Pool
      *
      * @returns {boolean}
      */

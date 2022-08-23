@@ -6,10 +6,8 @@ import { Pool } from '../generic.js';
 import prep from './prep.js';
 prep(test);
 
-let pool;
-
 test('Create Table', async (t) => {
-    pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
         await pool.query(sql`
@@ -42,10 +40,13 @@ test('Create Table', async (t) => {
         t.error(err);
     }
 
+    await pool.end();
     t.end();
 });
 
 test('Dog.delete', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
     try {
         await Dog.from(pool, 1);
     } catch (err) {
@@ -54,7 +55,7 @@ test('Dog.delete', async (t) => {
 
     try {
         const dog = await Dog.from(pool, 1);
-        await dog.delete(pool);
+        await dog.delete();
     } catch (err) {
         t.error(err);
     }
@@ -66,10 +67,13 @@ test('Dog.delete', async (t) => {
         t.equals(err.safe, 'dog not found');
     }
 
+    await pool.end();
     t.end();
 });
 
 test('Dog.delete (static)', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
     try {
         await Dog.from(pool, 2);
     } catch (err) {
@@ -89,10 +93,6 @@ test('Dog.delete (static)', async (t) => {
         t.equals(err.safe, 'dog not found');
     }
 
-    t.end();
-});
-
-test('Cleanup', async (t) => {
     await pool.end();
     t.end();
 });
