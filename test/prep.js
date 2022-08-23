@@ -5,6 +5,10 @@ export default function prep(test) {
         const pool = await createPool(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
         try {
+            await pool.query(sql`
+                CREATE EXTENSION IF NOT EXISTS postgis;
+            `);
+
             const pgres = await pool.query(sql`
                 SELECT
                     tablename AS table

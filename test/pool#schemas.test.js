@@ -73,6 +73,37 @@ test('Pool.schemas', async (t) => {
                         'created',
                         'updated'
                     ]
+                },
+                spatial_ref_sys: {
+                    type: 'object',
+                    additionalProperties: false,
+                    properties: {
+                        srid: {
+                            type: 'number'
+                        },
+                        auth_name: {
+                            type: [ 'string', 'null' ],
+                            maxLength: 256
+                        },
+                        auth_srid: {
+                            type: [ 'number', 'null' ]
+                        },
+                        srtext: {
+                            type: [ 'string', 'null' ],
+                            maxLength: 2048
+                        },
+                        proj4text: {
+                            type: [ 'string', 'null' ],
+                            maxLength: 2048
+                        }
+                    },
+                    required: [
+                        "srid",
+                        "auth_name",
+                        "auth_srid",
+                        "srtext",
+                        "proj4text"
+                    ]
                 }
             }
         });
