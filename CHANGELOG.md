@@ -10,6 +10,12 @@
 
 ## Version History
 
+### 8.0.0
+
+- :tada: Pool is now a custom wrapper around a slonik pool that provides JSON Schemas for each table
+- :tada: Remove all `_res` and `_patch` as these are now automatically generated
+- :tada: Pools are now stored when an object is created and as such many endpoints no longer require a `pool` arg
+
 ### v7.3.0
 
 - :tada: Add basic concept for parsing SQL query parameters
