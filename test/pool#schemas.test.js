@@ -82,27 +82,27 @@ test('Pool.schemas', async (t) => {
                             type: 'number'
                         },
                         auth_name: {
-                            type: [ 'string', 'null' ],
+                            type: ['string', 'null'],
                             maxLength: 256
                         },
                         auth_srid: {
-                            type: [ 'number', 'null' ]
+                            type: ['number', 'null']
                         },
                         srtext: {
-                            type: [ 'string', 'null' ],
+                            type: ['string', 'null'],
                             maxLength: 2048
                         },
                         proj4text: {
-                            type: [ 'string', 'null' ],
+                            type: ['string', 'null'],
                             maxLength: 2048
                         }
                     },
                     required: [
-                        "srid",
-                        "auth_name",
-                        "auth_srid",
-                        "srtext",
-                        "proj4text"
+                        'srid',
+                        'auth_name',
+                        'auth_srid',
+                        'srtext',
+                        'proj4text'
                     ]
                 }
             }
