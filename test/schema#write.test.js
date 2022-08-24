@@ -30,7 +30,7 @@ tape('Schema#write', async (t) => {
     t.deepEquals(JSON.parse(await fs.readFile(new URL('./fixtures/schemas/dog.json', import.meta.url))), {
         type: 'object',
         additionalProperties: false,
-        required: [ 'id', 'breed', 'pups' ],
+        required: ['id', 'breed', 'pups'],
         properties: {
             id: { $ref: './dog/id.json' },
             breed: { $ref: './dog/breed.json' },
