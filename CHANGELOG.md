@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v
+
+- :white_check_mark: Add basic `Schema#write` test
+
 ### v9.0.0
 
 - :rocket: peerDep for `@openaddresses/batch-schema@9`
