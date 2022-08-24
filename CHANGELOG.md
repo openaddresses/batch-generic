@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v9.0.0
+
+- :rocket: peerDep for `@openaddresses/batch-schema@9`
+
 ### v8.1.0
 
 - :todo: Optionally write JSON Schemas to a given directory
