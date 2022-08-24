@@ -10,7 +10,11 @@
 
 ## Version History
 
-### 8.0.0
+### v8.1.0
+
+- :todo: Optionally write JSON Schemas to a given directory
+
+### v8.0.0
 
 - :tada: Pool is now a custom wrapper around a slonik pool that provides JSON Schemas for each table
 - :tada: Remove all `_res` and `_patch` as these are now automatically generated
