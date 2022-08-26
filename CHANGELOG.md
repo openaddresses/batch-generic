@@ -10,8 +10,9 @@
 
 ## Version History
 
-### v
+### v9.1.0
 
+- :bug: non-json arrays of any kind would fail to be insert/updated
 - :white_check_mark: Add basic `Schema#write` test
 
 ### v9.0.0
