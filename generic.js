@@ -121,7 +121,7 @@ export default class Generic {
 
         for (const f in base) {
             cols.push(sql.identifier([f]));
-            commits.push(Generic._format(this._fields, base, f));
+            commits.push(Generic._format(pool._schemas.tables[this._table].properties[f], base[f]));
         }
 
         let pgres;
@@ -168,13 +168,11 @@ export default class Generic {
 
         if (patch) this.#patch(patch);
 
-        if (!this._fields) throw new Err(500, null, 'Internal: Fields not defined');
-
         const commits = [];
 
         const keys = Object.keys(patch).length ? Object.keys(patch) : this._fields.keys();
         for (const f of keys) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(this._fields, this, f)], sql` = `));
+            commits.push(sql.join([sql.identifier([f]), Generic._format(this._pool._schemas.tables[this._table].properties[f], this[f])], sql` = `));
         }
 
         if (!commits.length) return this;
@@ -238,45 +236,27 @@ export default class Generic {
     /**
      * Format an input SQL statement
      *
-     * @param {Object} fields       Field/Type mapping
-     * @param {Object} base         Base object to insert
-     * @param {string} f            Key to process
+     * @param {Object}  schema  JSON Schema for specific column field
+     * @param {*}       value   Value to process
      *
      * @returns {Object} SQL Value
      */
-    static _format(fields, base, f) {
-        const value = base[f];
-
-        if (typeof value === 'object' && value && value.sql && value.type && value.values) {
-            return value;
-        } else if (typeof value === 'object' && value !== null) {
-            return `${JSON.stringify(value)}`;
-        } else if (fields instanceof Map && fields.get(f) === PG.types.builtins.TIMESTAMP) {
-            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`;
-        } else if (fields instanceof Map && (value === null || value === undefined)) {
-            return sql`NULL`;
+    static _format(schema, value) {
+        if (schema.type === 'array') {
+            return sql.array(value, schema.$comment.replace('[', '').replace(']', ''))
+        } else if (schema.$comment === 'timestamp' && value instanceof Date) {
+            return sql.timestamp(value);
+        } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
+            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
         } else if (value === null || value === undefined) {
             return sql`NULL`;
+        } else if (typeof value === 'object' && value && value.sql && value.type && value.values) {
+            return value;
+        } else if (typeof value === 'object') {
+            return `${JSON.stringify(value)}`;
         } else {
             return sql`${value}`;
         }
-    }
-
-    /**
-     * Convert postgres field types into parsers for potential auto commit
-     * Note: Internal use only, breaking changes can be made without major release
-     *
-     * @param {Array[]} fields Postgres Fields directly from node-pg/slonik
-     * @return {Map} Map of field names => parsers
-     */
-    static _fields(fields) {
-        const parsers = new Map();
-
-        for (const f of fields) {
-            parsers.set(f.name, f.dataTypeId);
-        }
-
-        return parsers;
     }
 
     /**
@@ -346,8 +326,6 @@ export default class Generic {
         for (const key of Object.keys(row)) {
             single[key] = row[key];
         }
-
-        single._fields = this._fields(pgres.fields);
 
         return single;
     }

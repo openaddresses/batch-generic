@@ -20,7 +20,8 @@ test('Create Table', async (t) => {
                 smart       BIGINT NOT NULL DEFAULT 100,
                 attr        JSON NOT NULL DEFAULT '{}'::JSON,
                 created     TIMESTAMP NOT NULL DEFAULT NOW(),
-                updated     TIMESTAMP NOT NULL DEFAULT NOW()
+                updated     TIMESTAMP NOT NULL DEFAULT NOW(),
+                tags        TEXT[]
             );
         `);
 
@@ -52,12 +53,14 @@ test('Dog.commit', async (t) => {
         t.equals(dog.cute, true);
         t.equals(dog.smart, 100);
         t.deepEquals(dog.attr, {});
+        t.deepEquals(dog.tags, null);
 
         const update_orig = parseInt(dog.created);
         await dog.commit({
             attr: { test: true },
             species: 'lab',
-            updated: sql`NOW() + (INTERVAL '5 minutes')`
+            updated: sql`NOW() + (INTERVAL '5 minutes')`,
+            tags: ['12452216', 'tags']
         });
 
         const dog2 = await Dog.from(pool, 1);
@@ -71,6 +74,7 @@ test('Dog.commit', async (t) => {
         t.deepEquals(dog2.attr, {
             test: true
         });
+        t.deepEquals(dog2.tags, ['12452216', 'tags']);
 
         t.equals(dog2.created, dog.created);
         t.notEquals(update_orig, dog2.updated);
