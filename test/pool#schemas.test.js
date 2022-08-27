@@ -1,6 +1,7 @@
 import test from 'tape';
 import { sql } from 'slonik';
 import { Pool } from '../generic.js';
+import fs from 'fs/promises';
 
 import prep from './prep.js';
 prep(test);
@@ -44,69 +45,9 @@ test('Pool.schemas', async (t) => {
     try {
         const schemas = await pool.schemas();
 
-        t.deepEquals(schemas, {
-            tables: {
-                dog: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                        id: { type: 'number' },
-                        name: { type: 'string' },
-                        species: { type: 'string' },
-                        loyalty: { type: 'number' },
-                        cute: { type: 'boolean' },
-                        smart: { type: 'number' },
-                        attr: { type: 'object' },
-                        tags: { type: 'array', items: { type: ['object', 'null'] } },
-                        created: { type: 'string', format: 'date-time' },
-                        updated: { type: 'string', format: 'date-time' }
-                    },
-                    required: [
-                        'id',
-                        'name',
-                        'species',
-                        'loyalty',
-                        'cute',
-                        'smart',
-                        'attr',
-                        'tags',
-                        'created',
-                        'updated'
-                    ]
-                },
-                spatial_ref_sys: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                        srid: {
-                            type: 'number'
-                        },
-                        auth_name: {
-                            type: ['string', 'null'],
-                            maxLength: 256
-                        },
-                        auth_srid: {
-                            type: ['number', 'null']
-                        },
-                        srtext: {
-                            type: ['string', 'null'],
-                            maxLength: 2048
-                        },
-                        proj4text: {
-                            type: ['string', 'null'],
-                            maxLength: 2048
-                        }
-                    },
-                    required: [
-                        'srid',
-                        'auth_name',
-                        'auth_srid',
-                        'srtext',
-                        'proj4text'
-                    ]
-                }
-            }
-        });
+        t.deepEquals(schemas, JSON.parse(await fs.readFile(new URL('./fixtures/schema.json', import.meta.url))));
+
+        if (process.env.UPDATE) fs.writeFile(new URL('./fixtures/schema.json', import.meta.url), JSON.stringify(schemas, null, 4));
     } catch (err) {
         t.error(err);
     }
