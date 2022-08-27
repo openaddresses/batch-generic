@@ -1,7 +1,6 @@
 import { Err } from '@openaddresses/batch-schema';
 import { sql } from 'slonik';
 import { Transform } from 'stream';
-import PG from 'pg';
 import Pool from './lib/pool.js';
 import Params from './lib/params.js';
 
@@ -246,7 +245,7 @@ export default class Generic {
         if (!schema) throw new Err(500, null, `${id} does not exist!`);
 
         if (schema.type === 'array') {
-            return sql.array(value, schema.$comment.replace('[', '').replace(']', ''))
+            return sql.array(value, schema.$comment.replace('[', '').replace(']', ''));
         } else if (schema.$comment === 'timestamp' && value instanceof Date) {
             return sql.timestamp(value);
         } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
