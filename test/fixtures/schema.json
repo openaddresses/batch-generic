@@ -1,0 +1,118 @@
+{
+    "tables": {
+        "dog": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "$comment": "int8"
+                },
+                "name": {
+                    "type": "string",
+                    "$comment": "text"
+                },
+                "species": {
+                    "type": "string",
+                    "$comment": "text"
+                },
+                "loyalty": {
+                    "type": "number",
+                    "$comment": "int4"
+                },
+                "cute": {
+                    "type": "boolean",
+                    "$comment": "bool"
+                },
+                "smart": {
+                    "type": "number",
+                    "$comment": "int8"
+                },
+                "attr": {
+                    "type": "object",
+                    "$comment": "json"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": [
+                            "object",
+                            "null"
+                        ]
+                    },
+                    "$comment": "jsonb[]"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "$comment": "timestamp"
+                },
+                "updated": {
+                    "type": "string",
+                    "format": "date-time",
+                    "$comment": "timestamp"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "species",
+                "loyalty",
+                "cute",
+                "smart",
+                "attr",
+                "tags",
+                "created",
+                "updated"
+            ]
+        },
+        "spatial_ref_sys": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "srid": {
+                    "type": "number",
+                    "$comment": "int4"
+                },
+                "auth_name": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 256,
+                    "$comment": "varchar"
+                },
+                "auth_srid": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "$comment": "int4"
+                },
+                "srtext": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 2048,
+                    "$comment": "varchar"
+                },
+                "proj4text": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 2048,
+                    "$comment": "varchar"
+                }
+            },
+            "required": [
+                "srid",
+                "auth_name",
+                "auth_srid",
+                "srtext",
+                "proj4text"
+            ]
+        }
+    }
+}
