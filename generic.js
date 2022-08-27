@@ -121,7 +121,7 @@ export default class Generic {
 
         for (const f in base) {
             cols.push(sql.identifier([f]));
-            commits.push(Generic._format(pool._schemas.tables[this._table].properties[f], base[f]));
+            commits.push(Generic._format(`${this._table}.${f}`, pool._schemas.tables[this._table].properties[f], base[f]));
         }
 
         let pgres;
@@ -172,7 +172,7 @@ export default class Generic {
 
         const keys = Object.keys(patch).length ? Object.keys(patch) : this._fields.keys();
         for (const f of keys) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(this._pool._schemas.tables[this._table].properties[f], this[f])], sql` = `));
+            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], this[f])], sql` = `));
         }
 
         if (!commits.length) return this;
@@ -236,12 +236,15 @@ export default class Generic {
     /**
      * Format an input SQL statement
      *
+     * @param {string}  id      table.column name for error handling
      * @param {Object}  schema  JSON Schema for specific column field
      * @param {*}       value   Value to process
      *
      * @returns {Object} SQL Value
      */
-    static _format(schema, value) {
+    static _format(id, schema, value) {
+        if (!schema) throw new Err(500, null, `${id} does not exist!`);
+
         if (schema.type === 'array') {
             return sql.array(value, schema.$comment.replace('[', '').replace(']', ''))
         } else if (schema.$comment === 'timestamp' && value instanceof Date) {
