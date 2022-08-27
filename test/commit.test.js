@@ -85,3 +85,22 @@ test('Dog.commit', async (t) => {
     await pool.end();
     t.end();
 });
+
+test('Dog.commit - non-existant property', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        const dog = await Dog.from(pool, 1);
+
+        await dog.commit({
+            fake: 1
+        });
+
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'dog.fake does not exist!');
+    }
+
+    await pool.end();
+    t.end();
+});

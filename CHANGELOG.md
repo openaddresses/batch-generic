@@ -10,6 +10,13 @@
 
 ## Version History
 
+### v9.2.0
+
+- :bug: Throw a human readable error if the user passes properties to update that don't exist in the db
+- :white_check_mark: Tests for properties that don't exist in the database
+- :white_check_mark: Easier to manage pool.schemas tests
+
+
 ### v9.1.0
 
 - :bug: non-json arrays of any kind would fail to be insert/updated

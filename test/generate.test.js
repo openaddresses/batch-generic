@@ -64,3 +64,20 @@ test('Dog.generate', async (t) => {
     await pool.end();
     t.end();
 });
+
+test('Dog.generate - non-existant attribute', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        await Dog.generate(pool, {
+            fake: 1
+        });
+
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'dog.fake does not exist!');
+    }
+
+    await pool.end();
+    t.end();
+});
