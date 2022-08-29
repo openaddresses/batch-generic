@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v9.3.0
+
+- :tada: Automatically generate `description` property from `COMMENT`
+
 ### v9.2.0
 
 - :bug: Throw a human readable error if the user passes properties to update that don't exist in the db

@@ -25,6 +25,16 @@ test('Create Table', async (t) => {
                 created     TIMESTAMP NOT NULL DEFAULT NOW(),
                 updated     TIMESTAMP NOT NULL DEFAULT NOW()
             );
+
+            COMMENT ON COLUMN dog.id IS 'Unique ID';
+            COMMENT ON COLUMN dog.name IS 'Name of Dog';
+            COMMENT ON COLUMN dog.species IS 'Species of Dog';
+            COMMENT ON COLUMN dog.loyalty IS 'How loyal is the Dog';
+            COMMENT ON COLUMN dog.cute IS 'How cute is the Dog';
+            COMMENT ON COLUMN dog.smart IS 'How smart is the Dog';
+            COMMENT ON COLUMN dog.attr IS 'Additional Attributes';
+            COMMENT ON COLUMN dog.created IS 'Dog Creation Time';
+            COMMENT ON COLUMN dog.updated IS 'Dog Update Time';
         `);
 
         await pool.query(sql`
