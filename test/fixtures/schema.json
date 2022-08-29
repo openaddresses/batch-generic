@@ -6,30 +6,37 @@
             "properties": {
                 "id": {
                     "type": "number",
+                    "description": "Unique ID",
                     "$comment": "int8"
                 },
                 "name": {
                     "type": "string",
+                    "description": "Name of Dog",
                     "$comment": "text"
                 },
                 "species": {
                     "type": "string",
+                    "description": "Species of Dog",
                     "$comment": "text"
                 },
                 "loyalty": {
                     "type": "number",
+                    "description": "How loyal is the Dog",
                     "$comment": "int4"
                 },
                 "cute": {
                     "type": "boolean",
+                    "description": "How cute is the Dog",
                     "$comment": "bool"
                 },
                 "smart": {
                     "type": "number",
+                    "description": "How smart is the Dog",
                     "$comment": "int8"
                 },
                 "attr": {
                     "type": "object",
+                    "description": "Additional Attributes",
                     "$comment": "json"
                 },
                 "tags": {
@@ -38,18 +45,21 @@
                         "type": [
                             "object",
                             "null"
-                        ]
+                        ],
+                        "description": ""
                     },
                     "$comment": "jsonb[]"
                 },
                 "created": {
                     "type": "string",
                     "format": "date-time",
+                    "description": "Dog Creation Time",
                     "$comment": "timestamp"
                 },
                 "updated": {
                     "type": "string",
                     "format": "date-time",
+                    "description": "Dog Update Time",
                     "$comment": "timestamp"
                 }
             },
@@ -72,6 +82,7 @@
             "properties": {
                 "srid": {
                     "type": "number",
+                    "description": "",
                     "$comment": "int4"
                 },
                 "auth_name": {
@@ -80,6 +91,7 @@
                         "null"
                     ],
                     "maxLength": 256,
+                    "description": "",
                     "$comment": "varchar"
                 },
                 "auth_srid": {
@@ -87,6 +99,7 @@
                         "number",
                         "null"
                     ],
+                    "description": "",
                     "$comment": "int4"
                 },
                 "srtext": {
@@ -95,6 +108,7 @@
                         "null"
                     ],
                     "maxLength": 2048,
+                    "description": "",
                     "$comment": "varchar"
                 },
                 "proj4text": {
@@ -103,6 +117,7 @@
                         "null"
                     ],
                     "maxLength": 2048,
+                    "description": "",
                     "$comment": "varchar"
                 }
             },
