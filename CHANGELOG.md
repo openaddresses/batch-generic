@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v9.4.0
+
+- :rocket: Add basic support for PostGIS Geometry type
+
 ### v9.3.0
 
 - :tada: Automatically generate `description` property from `COMMENT`
