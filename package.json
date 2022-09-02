@@ -21,7 +21,6 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "@openaddresses/batch-schema": "^5.0.0",
         "moment": "2.x.x",
         "slonik": "30.x.x"
     },
@@ -32,6 +31,7 @@
         "tape": "^5.4.0"
     },
     "dependencies": {
+        "@openaddresses/batch-error": "^1.0.1",
         "@turf/bbox": "^6.5.0",
         "mkdirp": "^1.0.4",
         "pg-structure": "^7.13.0",
