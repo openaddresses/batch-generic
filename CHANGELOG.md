@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v10.0.0
+
+- :rocket: Use `@openaddressses/batch-error` to remove pin to `@openaddresses/batch-schema`
+
 ### v9.4.0
 
 - :rocket: Add basic support for PostGIS Geometry type
