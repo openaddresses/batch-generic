@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v10.1.0
+
+- :rocket: Add error handling for duplicate constraint
+
 ### v10.0.1
 
 - :bug: `this._fields` is no longer a populated field
