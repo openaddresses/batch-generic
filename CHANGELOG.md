@@ -10,9 +10,13 @@
 
 ## Version History
 
+### v10.2.0
+
+- :rocket: Add error handling for duplicate constraint on commit
+
 ### v10.1.0
 
-- :rocket: Add error handling for duplicate constraint
+- :rocket: Add error handling for duplicate constraint on generate
 
 ### v10.0.1
 
