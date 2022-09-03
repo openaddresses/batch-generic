@@ -194,6 +194,9 @@ export default class Generic {
 
             this.#patch(pgres.rows[0]);
         } catch (err) {
+            if (err.originalError && err.originalError.code && err.originalError.code === '23505') {
+                throw new Err(400, null, `${this._table} already exists`);
+            }
             throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
         }
 
