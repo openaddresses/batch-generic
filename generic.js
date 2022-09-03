@@ -15,6 +15,8 @@ export { Pool, Params };
  */
 export default class Generic {
     constructor(pool) {
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+
         this._pool = pool;
         this._table = this.constructor._table;
         this._res = this._pool._schemas.tables[this._table];
@@ -32,6 +34,7 @@ export default class Generic {
      */
     static stream(pool, query = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         if (!query.sort) query.sort = 'id';
         if (!query.order || query.order === 'asc') {
@@ -76,6 +79,7 @@ export default class Generic {
      */
     static async list(pool, query = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         if (!query.limit) query.limit = 100;
         if (!query.page) query.page = 0;
@@ -115,6 +119,8 @@ export default class Generic {
      * @param {Object}  base                Object containing base properties
      */
     static async generate(pool, base) {
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+
         const commits = [];
         const cols = [];
 
@@ -216,6 +222,9 @@ export default class Generic {
     static async from(pool, id, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!opts.column) opts.column = 'id';
+
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+        if (id === undefined) throw new Err(500, `id for ${this._table}.${opts.column} cannot be undefined`);
 
         let pgres;
         try {
@@ -327,6 +336,8 @@ export default class Generic {
      * @returns {Generic}
      */
     static deserialize(pool, pgres) {
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+
         const single = new this(pool);
 
         const row = pgres.rows ? pgres.rows[0] : pgres.row;
@@ -351,6 +362,9 @@ export default class Generic {
     static async delete(pool, id, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!opts.column) opts.column = 'id';
+
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+        if (id === undefined) throw new Err(500, `id for ${this._table}.${opts.column} cannot be undefined`);
 
         try {
 
@@ -403,6 +417,8 @@ export default class Generic {
      */
     static async clear(pool) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         try {
             await pool.query(sql`
