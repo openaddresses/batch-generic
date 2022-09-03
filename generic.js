@@ -137,7 +137,11 @@ export default class Generic {
 
             return this.deserialize(pool, pgres);
         } catch (err) {
-            throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
+            if (err.originalError && err.originalError.code && err.originalError.code === '23505') {
+                throw new Err(400, null, `${this._table} already exists`);
+            }
+
+            throw new Err(500, new Error(err), `Failed to generate ${this._table}`);
         }
     }
 
