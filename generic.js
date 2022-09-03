@@ -169,8 +169,7 @@ export default class Generic {
 
         const commits = [];
 
-        const keys = Object.keys(patch).length ? Object.keys(patch) : this._fields.keys();
-        for (const f of keys) {
+        for (const f in patch) {
             commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], this[f])], sql` = `));
         }
 
