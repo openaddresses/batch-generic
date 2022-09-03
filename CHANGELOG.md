@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v10.3.0
+
+- :rocket: Add light function arg checks to ensure pool/id are valid
+
 ### v10.2.0
 
 - :rocket: Add error handling for duplicate constraint on commit
