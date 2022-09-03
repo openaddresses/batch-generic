@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v10.0.1
+
+- :bug: `this._fields` is no longer a populated field
+
 ### v10.0.0
 
 - :rocket: Use `@openaddressses/batch-error` to remove pin to `@openaddresses/batch-schema`
