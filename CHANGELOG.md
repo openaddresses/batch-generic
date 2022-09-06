@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v10.3.1
+
+- :rocket: internal improvements when patching via commit
+
 ### v10.3.0
 
 - :rocket: Add light function arg checks to ensure pool/id are valid
