@@ -175,12 +175,10 @@ export default class Generic {
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
 
-        if (patch) this.#patch(patch);
-
         const commits = [];
 
         for (const f in patch) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], this[f])], sql` = `));
+            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], patch[f])], sql` = `));
         }
 
         if (!commits.length) return this;
