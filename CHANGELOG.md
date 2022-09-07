@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v11.0.0
+
+- :arrow_up: `slonik@31` peerDependency
+
 ### v10.3.1
 
 - :rocket: internal improvements when patching via commit
