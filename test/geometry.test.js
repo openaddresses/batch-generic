@@ -49,8 +49,8 @@ test('Geometry - With Parsing', async (t) => {
         t.equals(pt.name, 'prairie');
         t.deepEquals(pt.geom, {
             type: 'Point',
-            coordinates: [ -102.65, 40.17 ],
-            bounds: [ -102.65, 40.17, -102.65, 40.17 ]
+            coordinates: [-102.65, 40.17],
+            bounds: [-102.65, 40.17, -102.65, 40.17]
         });
 
     } catch (err) {
