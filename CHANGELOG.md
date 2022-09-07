@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v11.1.0
+
+- :tada: Add support for inserting/updating GeoJSON objects automatically
+
 ### v11.0.0
 
 - :arrow_up: `slonik@31` peerDependency
