@@ -259,6 +259,8 @@ export default class Generic {
 
         if (schema.type === 'array') {
             return sql.array(value, schema.$comment.replace('[', '').replace(']', ''));
+        } else if (schema.$comment === 'geometry' && typeof value === 'object') {
+            return sql`ST_GeomFromGeoJSON(${JSON.stringify(value)})`;
         } else if (schema.$comment === 'timestamp' && value instanceof Date) {
             return sql.timestamp(value);
         } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
