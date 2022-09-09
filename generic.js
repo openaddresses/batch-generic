@@ -167,11 +167,13 @@ export default class Generic {
     /**
      * Commit a given object back into the database
      *
-     * @param {Object}  [patch]             Optionally patch & commit in the same operation
+     * @param {Object}  patch               Attributes to patch
      * @param {Object}  opts                Options
-     * @param {string}  [opts.column=id]    Retrieve by an alternate column/field
+     * @param {string}  [opts.column=id]    Commit by an alternate column/field
      */
     async commit(patch = {}, opts = {}) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+
         if (!opts) opts = {};
         if (!opts.column) opts.column = 'id';
 
@@ -205,6 +207,52 @@ export default class Generic {
         }
 
         return this;
+    }
+
+    /**
+     * Commit a given object back into the database without first obtaining the object
+     *
+     * @param {Pool}    pool                Generic Pool
+     * @param {number}  id                  ID of object to commit
+     * @param {Object}  patch               Attributes to patch
+     * @param {Object}  opts                Options
+     * @param {string}  [opts.column=id]    Commit by an alternate column/field
+     */
+    static async commit(pool, id, patch = {}, opts = {}) {
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
+
+        if (!opts) opts = {};
+        if (!opts.column) opts.column = 'id';
+
+        const commits = [];
+
+        for (const f in patch) {
+            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, pool._schemas.tables[this._table].properties[f], patch[f])], sql` = `));
+        }
+
+        if (!commits.length) throw new Err(400, null, 'Nothing to commit');
+
+        let pgres;
+        try {
+            pgres = await pool.query(sql`
+                UPDATE
+                    ${sql.identifier([this._table])}
+                SET
+                    ${sql.join(commits, sql`, `)}
+                WHERE
+                    ${sql.identifier([this._table, opts.column])} = ${id}
+                RETURNING
+                    *
+            `);
+
+            return this.deserialize(pool, pgres);
+        } catch (err) {
+            if (err.originalError && err.originalError.code && err.originalError.code === '23505') {
+                throw new Err(400, null, `${this._table} already exists`);
+            }
+            throw new Err(500, new Error(err), `Failed to commit to ${this._table}`);
+        }
     }
 
     /**
