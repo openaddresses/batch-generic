@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v11.2.0
+
+- :tada: Add static `Generic.commit` fn
+
 ### v11.1.0
 
 - :tada: Add support for inserting/updating GeoJSON objects automatically
