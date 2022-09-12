@@ -3,14 +3,14 @@ import { sql } from 'slonik';
 import { Transform } from 'stream';
 import Pool from './lib/pool.js';
 import Params from './lib/params.js';
+import Schema from './lib/schema.js';
 
-export { Pool, Params };
+export { Pool, Params, Schema };
 
 /**
  * @class
  *
  * @prop {string} _table    Postgres Table name
- * @prop {Object} _res      Result JSON Schema
  * @prop {Pool} _pool     Generic Pool
  */
 export default class Generic {
@@ -19,7 +19,6 @@ export default class Generic {
 
         this._pool = pool;
         this._table = this.constructor._table;
-        this._res = this._pool._schemas.tables[this._table];
     }
 
     /**
@@ -157,7 +156,7 @@ export default class Generic {
      * @param {Object} patch Patch body to apply
      */
     #patch(patch) {
-        for (const attr in this._res.properties) {
+        for (const attr in Schema.from(this._pool, this).properties) {
             if (patch[attr] !== undefined) {
                 this[attr] = patch[attr];
             }
@@ -170,6 +169,8 @@ export default class Generic {
      * @param {Object}  patch               Attributes to patch
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]    Commit by an alternate column/field
+     *
+     * @returns {Generic}
      */
     async commit(patch = {}, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
@@ -217,6 +218,8 @@ export default class Generic {
      * @param {Object}  patch               Attributes to patch
      * @param {Object}  opts                Options
      * @param {string}  [opts.column=id]    Commit by an alternate column/field
+     *
+     * @returns {Generic}
      */
     static async commit(pool, id, patch = {}, opts = {}) {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
@@ -330,12 +333,9 @@ export default class Generic {
      * @return {Object}
      */
     serialize() {
-        if (!this._res) throw new Err(500, null, 'Internal: Res not defined');
-        if (this._res.type !== 'object') throw new Err(500, null, 'Only Object Serialization Supported');
-
         const res = {};
 
-        for (const key of Object.keys(this._res.properties)) {
+        for (const key in Schema.from(this._pool, this).properties) {
             if (this[key] !== undefined) res[key] = this[key];
         }
 
@@ -348,7 +348,7 @@ export default class Generic {
      * @param {Object} pgres
      * @param {Object} alias
      *
-     * @returns {Generic}
+     * @returns {Object}
      */
     static deserialize_list(pgres, alias) {
         const res = {
