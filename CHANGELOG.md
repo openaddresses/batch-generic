@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v11.3.0
+
+- :rocket: Remove internal `_res` property in favour of `Schema.from`
+- :tada: Add `Schema.from` as helper for returning a JSON Schema for a class/instance
+
 ### v11.2.0
 
 - :tada: Add static `Generic.commit` fn
