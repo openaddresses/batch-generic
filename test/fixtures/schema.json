@@ -129,5 +129,102 @@
                 "proj4text"
             ]
         }
+    },
+    "views": {
+        "geography_columns": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "f_table_catalog": {},
+                "f_table_schema": {},
+                "f_table_name": {},
+                "f_geography_column": {},
+                "coord_dimension": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "",
+                    "$comment": "int4"
+                },
+                "srid": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "",
+                    "$comment": "int4"
+                },
+                "type": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "",
+                    "$comment": "text"
+                }
+            },
+            "required": [
+                "f_table_catalog",
+                "f_table_schema",
+                "f_table_name",
+                "f_geography_column",
+                "coord_dimension",
+                "srid",
+                "type"
+            ]
+        },
+        "geometry_columns": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "f_table_catalog": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 256,
+                    "description": "",
+                    "$comment": "varchar"
+                },
+                "f_table_schema": {},
+                "f_table_name": {},
+                "f_geometry_column": {},
+                "coord_dimension": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "",
+                    "$comment": "int4"
+                },
+                "srid": {
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "",
+                    "$comment": "int4"
+                },
+                "type": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 30,
+                    "description": "",
+                    "$comment": "varchar"
+                }
+            },
+            "required": [
+                "f_table_catalog",
+                "f_table_schema",
+                "f_table_name",
+                "f_geometry_column",
+                "coord_dimension",
+                "srid",
+                "type"
+            ]
+        }
     }
 }

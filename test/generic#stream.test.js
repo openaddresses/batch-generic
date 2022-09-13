@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -38,6 +38,14 @@ test('Create Table', async (t) => {
                 'Tally'
             );
         `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog AS
+                SELECT
+                    *
+                FROM
+                    dog
+        `);
     } catch (err) {
         t.error(err);
     }
@@ -56,10 +64,32 @@ test('Dog.stream', (t) => {
         }).on('close', async () => {
             t.equals(dogs[0].id, 1);
             t.equals(dogs[1].id, 2);
-            await pool.end();
             t.end();
         });
     }).catch((err) => {
         t.error(err);
     });
+});
+
+test('DogView.stream', (t) => {
+    DogView.stream(pool).then((stream) => {
+        const dogs = [];
+
+        stream.on('data', (dog) => {
+            dogs.push(dog);
+        }).on('error', (err) => {
+            t.error(err);
+        }).on('close', async () => {
+            t.equals(dogs[0].id, 1);
+            t.equals(dogs[1].id, 2);
+            t.end();
+        });
+    }).catch((err) => {
+        t.error(err);
+    });
+});
+
+test('Close Pool', async (t) => {
+    await pool.end();
+    t.end();
 });

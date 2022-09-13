@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -43,6 +43,20 @@ test('Dog.clear()', async (t) => {
         await Dog.clear(pool);
     } catch (err) {
         t.error(err);
+    }
+
+    await pool.end();
+    t.end();
+});
+
+test('DogView.clear()', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        await DogView.clear(pool);
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'Internal: View does not support clears');
     }
 
     await pool.end();

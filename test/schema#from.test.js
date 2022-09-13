@@ -1,6 +1,6 @@
 import Schema from '../lib/schema.js';
 import test from 'tape';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 import { sql } from 'slonik';
 
@@ -24,6 +24,15 @@ test('Create Table', async (t) => {
                 updated     TIMESTAMP NOT NULL DEFAULT NOW()
             );
         `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog
+                AS
+                    SELECT
+                        *
+                    FROM
+                        dog
+        `);
     } catch (err) {
         t.error(err);
     }
@@ -32,10 +41,23 @@ test('Create Table', async (t) => {
     t.end();
 });
 
-test('Schema#from - class retrieval', async (t) => {
+test('Schema#from - class retrieval (Table)', async (t) => {
     const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     t.deepEquals(Object.keys(Schema.from(pool, Dog)).sort(), [
+        'type',
+        'additionalProperties',
+        'properties',
+        'required'
+    ].sort());
+
+    t.end();
+});
+
+test('Schema#from - class retrieval (View)', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    t.deepEquals(Object.keys(Schema.from(pool, DogView)).sort(), [
         'type',
         'additionalProperties',
         'properties',
@@ -71,6 +93,24 @@ test('Schema#from - instance retrieval', async (t) => {
     t.end();
 });
 
+test('Schema#from - instance retrieval (View)', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        const dog = await DogView.from(pool, 1);
+        t.deepEquals(Object.keys(Schema.from(pool, dog)).sort(), [
+            'type',
+            'additionalProperties',
+            'properties',
+            'required'
+        ].sort());
+    } catch (err) {
+        t.error(err);
+    }
+
+    t.end();
+});
+
 test('Schema#from - non-generic', async (t) => {
     const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
@@ -84,7 +124,7 @@ test('Schema#from - non-generic', async (t) => {
     t.end();
 });
 
-test('Schema#from - table doesn\'t exist', async (t) => {
+test('Schema#from - Table doesn\'t exist', async (t) => {
     const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
@@ -94,6 +134,21 @@ test('Schema#from - table doesn\'t exist', async (t) => {
         t.fail();
     } catch (err) {
         t.equals(err.safe, 'The schema for the table "fake" could not be found');
+    }
+
+    t.end();
+});
+
+test('Schema#from - View doesn\'t exist', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        Schema.from(pool, {
+            _view: 'fake'
+        });
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'The schema for the view "fake" could not be found');
     }
 
     t.end();
