@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -31,6 +31,14 @@ test('Create Table', async (t) => {
             ) VALUES (
                 'prairie'
             );
+        `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog AS
+                SELECT
+                    *
+                FROM
+                    dog
         `);
     } catch (err) {
         t.error(err);
@@ -99,6 +107,39 @@ test('Dog.commit - non-existant property', async (t) => {
         t.fail();
     } catch (err) {
         t.equals(err.safe, 'dog.fake does not exist!');
+    }
+
+    await pool.end();
+    t.end();
+});
+
+test('DogView.commit', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        const dog = await DogView.from(pool, 1);
+
+        t.equals(dog.id, 1);
+        t.equals(dog.name, 'prairie');
+        t.equals(dog.species, 'lab');
+        t.equals(dog.loyalty, 10);
+        t.equals(dog.cute, true);
+        t.equals(dog.smart, 100);
+        t.deepEquals(dog.attr, {
+            test: true
+        });
+        t.deepEquals(dog.tags, ['12452216', 'tags']);
+
+        await dog.commit({
+            attr: { test: true },
+            species: 'lab',
+            updated: sql`NOW() + (INTERVAL '5 minutes')`,
+            tags: ['12452216', 'tags']
+        });
+
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'Internal: View does not support commits');
     }
 
     await pool.end();

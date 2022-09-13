@@ -19,6 +19,7 @@ export default class Generic {
 
         this._pool = pool;
         this._table = this.constructor._table;
+        this._view = this.constructor._view;
     }
 
     /**
@@ -32,7 +33,7 @@ export default class Generic {
      * @return {Stream}
      */
     static stream(pool, query = {}) {
-        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         if (!query.sort) query.sort = 'id';
@@ -47,7 +48,7 @@ export default class Generic {
                 SELECT
                     *
                 FROM
-                    ${sql.identifier([this._table])}
+                    ${sql.identifier([this._table || this._view])}
                 ORDER BY
                     ${sql.identifier([query.sort])} ${query.order}
             `, (stream) => {
@@ -77,7 +78,7 @@ export default class Generic {
      * @returns {Object}
      */
     static async list(pool, query = {}) {
-        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         if (!query.limit) query.limit = 100;
@@ -96,7 +97,7 @@ export default class Generic {
                     count(*) OVER() AS count,
                     *
                 FROM
-                    ${sql.identifier([this._table])}
+                    ${sql.identifier([this._table || this._view])}
                 ORDER BY
                     ${sql.identifier([query.sort])} ${query.order}
                 LIMIT
@@ -105,7 +106,7 @@ export default class Generic {
                     ${query.limit * query.page}
             `);
         } catch (err) {
-            throw new Err(500, new Error(err), `Failed to list from ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to list from ${this._table || this._view}`);
         }
 
         return this.deserialize_list(pgres);
@@ -118,6 +119,8 @@ export default class Generic {
      * @param {Object}  base                Object containing base properties
      */
     static async generate(pool, base) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support generation');
+        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         const commits = [];
@@ -151,19 +154,6 @@ export default class Generic {
     }
 
     /**
-     * Apply a given object to the base
-     *
-     * @param {Object} patch Patch body to apply
-     */
-    #patch(patch) {
-        for (const attr in Schema.from(this._pool, this).properties) {
-            if (patch[attr] !== undefined) {
-                this[attr] = patch[attr];
-            }
-        }
-    }
-
-    /**
      * Commit a given object back into the database
      *
      * @param {Object}  patch               Attributes to patch
@@ -173,6 +163,7 @@ export default class Generic {
      * @returns {Generic}
      */
     async commit(patch = {}, opts = {}) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support commits');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
         if (!opts) opts = {};
@@ -222,6 +213,7 @@ export default class Generic {
      * @returns {Generic}
      */
     static async commit(pool, id, patch = {}, opts = {}) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support commits');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
@@ -269,11 +261,11 @@ export default class Generic {
      * @returns {Generic}
      */
     static async from(pool, id, opts = {}) {
-        if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
+        if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
         if (!opts.column) opts.column = 'id';
 
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
-        if (id === undefined) throw new Err(500, `id for ${this._table}.${opts.column} cannot be undefined`);
+        if (id === undefined) throw new Err(500, `id for ${this._table || this._view}.${opts.column} cannot be undefined`);
 
         let pgres;
         try {
@@ -281,50 +273,19 @@ export default class Generic {
                 SELECT
                     *
                 FROM
-                    ${sql.identifier([this._table])}
+                    ${sql.identifier([this._table || this._view])}
                 WHERE
-                    ${sql.identifier([this._table, opts.column])} = ${id}
+                    ${sql.identifier([this._table || this._view, opts.column])} = ${id}
             `);
         } catch (err) {
-            throw new Err(500, new Error(err), `Failed to load from ${this._table}`);
+            throw new Err(500, new Error(err), `Failed to load from ${this._table || this._view}`);
         }
 
         if (!pgres.rows.length) {
-            throw new Err(404, null, `${this._table} not found`);
+            throw new Err(404, null, `${this._table || this._view} not found`);
         }
 
         return this.deserialize(pool, pgres);
-    }
-
-    /**
-     * Format an input SQL statement
-     *
-     * @param {string}  id      table.column name for error handling
-     * @param {Object}  schema  JSON Schema for specific column field
-     * @param {*}       value   Value to process
-     *
-     * @returns {Object} SQL Value
-     */
-    static _format(id, schema, value) {
-        if (!schema) throw new Err(500, null, `${id} does not exist!`);
-
-        if (schema.type === 'array') {
-            return sql.array(value, schema.$comment.replace('[', '').replace(']', ''));
-        } else if (schema.$comment === 'geometry' && typeof value === 'object') {
-            return sql`ST_GeomFromGeoJSON(${JSON.stringify(value)})`;
-        } else if (schema.$comment === 'timestamp' && value instanceof Date) {
-            return sql.timestamp(value);
-        } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
-            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
-        } else if (value === null || value === undefined) {
-            return sql`NULL`;
-        } else if (typeof value === 'object' && value && value.sql && value.type && value.values) {
-            return value;
-        } else if (typeof value === 'object') {
-            return `${JSON.stringify(value)}`;
-        } else {
-            return sql`${value}`;
-        }
     }
 
     /**
@@ -359,7 +320,7 @@ export default class Generic {
             res.total = parseInt(pgres.rows[0].count);
         }
 
-        res[alias || this._table || 'items'] = [];
+        res[alias || this._table || this._view || 'items'] = [];
 
         for (const row of pgres.rows) {
             const single = {};
@@ -369,7 +330,7 @@ export default class Generic {
                 single[key] = row[key];
             }
 
-            res[alias || this._table || 'items'].push(single);
+            res[alias || this._table || this._view || 'items'].push(single);
         }
 
         return res;
@@ -408,6 +369,7 @@ export default class Generic {
      * @returns {boolean}
      */
     static async delete(pool, id, opts = {}) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support deletions');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!opts.column) opts.column = 'id';
 
@@ -438,6 +400,7 @@ export default class Generic {
      * @returns {boolean}
      */
     async delete(opts = {}) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support deletions');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!opts.column) opts.column = 'id';
 
@@ -464,6 +427,7 @@ export default class Generic {
      * @returns {boolean}
      */
     static async clear(pool) {
+        if (this._view) throw new Err(500, null, 'Internal: View does not support clears');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
@@ -477,6 +441,51 @@ export default class Generic {
         } catch (err) {
             if (err.originalError && err.originalError.code === '23503') throw new Err(400, new Error(err), `${this._table} is still in use`);
             throw new Err(500, new Error(err), `Failed to clear ${this._table}`);
+        }
+    }
+
+    /**
+     * Apply a given object to the base
+     *
+     * @param {Object} patch Patch body to apply
+     */
+    #patch(patch) {
+        for (const attr in Schema.from(this._pool, this).properties) {
+            if (patch[attr] !== undefined) {
+                this[attr] = patch[attr];
+            }
+        }
+    }
+
+
+    /**
+     * Format an input SQL statement
+     *
+     * @param {string}  id      table.column name for error handling
+     * @param {Object}  schema  JSON Schema for specific column field
+     * @param {*}       value   Value to process
+     *
+     * @returns {Object} SQL Value
+     */
+    static _format(id, schema, value) {
+        if (!schema) throw new Err(500, null, `${id} does not exist!`);
+
+        if (schema.type === 'array') {
+            return sql.array(value, schema.$comment.replace('[', '').replace(']', ''));
+        } else if (schema.$comment === 'geometry' && typeof value === 'object') {
+            return sql`ST_GeomFromGeoJSON(${JSON.stringify(value)})`;
+        } else if (schema.$comment === 'timestamp' && value instanceof Date) {
+            return sql.timestamp(value);
+        } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
+            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
+        } else if (value === null || value === undefined) {
+            return sql`NULL`;
+        } else if (typeof value === 'object' && value && value.sql && value.type && value.values) {
+            return value;
+        } else if (typeof value === 'object') {
+            return `${JSON.stringify(value)}`;
+        } else {
+            return sql`${value}`;
         }
     }
 }

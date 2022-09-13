@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -22,6 +22,15 @@ test('Create Table', async (t) => {
                 created     TIMESTAMP NOT NULL DEFAULT NOW(),
                 updated     TIMESTAMP NOT NULL DEFAULT NOW()
             );
+
+        `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog AS
+                SELECT
+                    *
+                FROM
+                    dog;
         `);
     } catch (err) {
         t.error(err);
@@ -77,6 +86,29 @@ test('Dog.generate - non-existant attribute', async (t) => {
     } catch (err) {
         t.equals(err.safe, 'dog.fake does not exist!');
     }
+
+    await pool.end();
+    t.end();
+});
+
+test('DogView.generate', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        await DogView.generate(pool, {
+            name: 'prairie',
+            species: 'mutt',
+            loyalty: 10,
+            cute: true,
+            smart: 100,
+            attr: {}
+        });
+
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'Internal: View does not support generation');
+    }
+
 
     await pool.end();
     t.end();

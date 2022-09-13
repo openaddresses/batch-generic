@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -35,6 +35,14 @@ test('Create Table', async (t) => {
             ) VALUES (
                 'Tally'
             );
+        `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog AS
+                SELECT
+                    *
+                FROM
+                    dog;
         `);
     } catch (err) {
         t.error(err);
@@ -146,6 +154,38 @@ test('Dog.list - order: desc - page 1', async (t) => {
             dog: [{
                 id: 1,
                 name: 'prairie',
+                species: 'mutt',
+                loyalty: 10,
+                cute: true,
+                smart: 100
+            }]
+        });
+    } catch (err) {
+        t.error(err);
+    }
+
+    await pool.end();
+    t.end();
+});
+
+test('DogView.list', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        const list = await DogView.list(pool);
+
+        t.deepEquals(list, {
+            total: 2,
+            view_dog: [{
+                id: 1,
+                name: 'prairie',
+                species: 'mutt',
+                loyalty: 10,
+                cute: true,
+                smart: 100
+            },{
+                id: 2,
+                name: 'Tally',
                 species: 'mutt',
                 loyalty: 10,
                 cute: true,

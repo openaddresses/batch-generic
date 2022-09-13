@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -78,6 +78,26 @@ test('Dog#commit', async (t) => {
         t.equals(dog2.created, dog.created);
     } catch (err) {
         t.error(err);
+    }
+
+    await pool.end();
+    t.end();
+});
+
+test('DogView#commit', async (t) => {
+    const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
+
+    try {
+        await DogView.commit(pool, 1, {
+            attr: { test: true },
+            species: 'lab',
+            updated: sql`NOW() + (INTERVAL '5 minutes')`,
+            tags: ['12452216', 'tags']
+        });
+
+        t.fail();
+    } catch (err) {
+        t.equals(err.safe, 'Internal: View does not support commits');
     }
 
     await pool.end();

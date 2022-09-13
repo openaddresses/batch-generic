@@ -1,6 +1,6 @@
 import test from 'tape';
 import { sql } from 'slonik';
-import { Dog } from './base.js';
+import { Dog, DogView } from './base.js';
 import { Pool } from '../generic.js';
 
 import prep from './prep.js';
@@ -35,6 +35,14 @@ test('Create Table', async (t) => {
             ) VALUES (
                 'tally'
             );
+        `);
+
+        await pool.query(sql`
+            CREATE VIEW view_dog AS
+                SELECT
+                    *
+                FROM
+                    dog;
         `);
     } catch (err) {
         t.error(err);
@@ -71,28 +79,18 @@ test('Dog.delete', async (t) => {
     t.end();
 });
 
-test('Dog.delete (static)', async (t) => {
+test('DogView.delete', async (t) => {
     const pool = await Pool.connect(process.env.POSTGRES || 'postgres://postgres@localhost:5432/batch_generic');
 
     try {
-        await Dog.from(pool, 2);
-    } catch (err) {
-        t.error(err);
-    }
-
-    try {
-        await Dog.delete(pool, 2);
-    } catch (err) {
-        t.error(err);
-    }
-
-    try {
-        await Dog.from(pool, 2);
+        const dog = await DogView.from(pool, 2);
+        await dog.delete();
         t.fail();
     } catch (err) {
-        t.equals(err.safe, 'dog not found');
+        t.equals(err.safe, 'Internal: View does not support deletions');
     }
 
     await pool.end();
     t.end();
 });
+
