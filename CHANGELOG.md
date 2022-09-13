@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v11.4.0
+
+- :tada: Add support for Classes that should mirror a view
+
 ### v11.3.0
 
 - :rocket: Remove internal `_res` property in favour of `Schema.from`
