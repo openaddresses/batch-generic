@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v11.5.0
+
+- :tada: Add support for writing view definitions to disk
+- :rocket: Remove columns from disk when they no longer exist in the database
+
 ### v11.4.0
 
 - :tada: Add support for Classes that should mirror a view
