@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v11.6.1
+
+- :bug: Fix string parsing for Params.boolean
+
 ### v11.6.0
 
 - :rocket: Merge new schema with existing schema files to allow users to add non-automated key/values
