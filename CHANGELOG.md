@@ -10,6 +10,12 @@
 
 ## Version History
 
+### v11.6.2
+
+- :bug: Fix string parsing for Params.string
+- :bug: Fix string parsing for Params.number
+- :bug: Fix string parsing for Params.integer
+
 ### v11.6.1
 
 - :bug: Fix string parsing for Params.boolean
