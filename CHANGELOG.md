@@ -10,6 +10,20 @@
 
 ## Version History
 
+### v11.6.2
+
+- :bug: Fix string parsing for Params.string
+- :bug: Fix string parsing for Params.number
+- :bug: Fix string parsing for Params.integer
+
+### v11.6.1
+
+- :bug: Fix string parsing for Params.boolean
+
+### v11.6.0
+
+- :rocket: Merge new schema with existing schema files to allow users to add non-automated key/values
+
 ### v11.5.0
 
 - :tada: Add support for writing view definitions to disk
