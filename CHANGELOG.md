@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v12.0.0
+
+- :arrow_up: `slonik@32` peerDependency
+
 ### v11.6.2
 
 - :bug: Fix string parsing for Params.string
