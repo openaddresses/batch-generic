@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.0.1
+
+- :bug: Don't write internal schema props that AJV will reject
+
 ### v13.0.0
 
 - :tada: Automatically determine Primary Key (no longer always set to `id`)
