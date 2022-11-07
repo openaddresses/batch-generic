@@ -4,6 +4,7 @@ import { Transform } from 'stream';
 import Pool from './lib/pool.js';
 import Params from './lib/params.js';
 import Schema from './lib/schema.js';
+import Utils from './lib/utils.js';
 
 export { Pool, Params, Schema };
 
@@ -36,7 +37,7 @@ export default class Generic {
         if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
-        if (!query.sort) query.sort = 'id';
+        if (!query.sort) query.sort = Utils.primaryKey(this, pool);
         if (!query.order || query.order === 'asc') {
             query.order = sql`asc`;
         } else {
@@ -83,7 +84,7 @@ export default class Generic {
 
         if (!query.limit) query.limit = 100;
         if (!query.page) query.page = 0;
-        if (!query.sort) query.sort = 'id';
+        if (!query.sort) query.sort = Utils.primaryKey(this, pool);
         if (!query.order || query.order === 'asc') {
             query.order = sql`asc`;
         } else {
@@ -167,7 +168,7 @@ export default class Generic {
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
         if (!opts) opts = {};
-        if (!opts.column) opts.column = 'id';
+        if (!opts.column) opts.column = Utils.primaryKey(this);
 
         const commits = [];
 
@@ -218,7 +219,7 @@ export default class Generic {
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
 
         if (!opts) opts = {};
-        if (!opts.column) opts.column = 'id';
+        if (!opts.column) opts.column = Utils.primaryKey(this, pool);
 
         const commits = [];
 
@@ -262,7 +263,7 @@ export default class Generic {
      */
     static async from(pool, id, opts = {}) {
         if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
-        if (!opts.column) opts.column = 'id';
+        if (!opts.column) opts.column = Utils.primaryKey(this, pool);
 
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
         if (id === undefined) throw new Err(500, `id for ${this._table || this._view}.${opts.column} cannot be undefined`);
@@ -371,7 +372,7 @@ export default class Generic {
     static async delete(pool, id, opts = {}) {
         if (this._view) throw new Err(500, null, 'Internal: View does not support deletions');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
-        if (!opts.column) opts.column = 'id';
+        if (!opts.column) opts.column = Utils.primaryKey(this, pool);
 
         if (!pool || !pool.query) throw new Err(500, 'Postgres Connection required');
         if (id === undefined) throw new Err(500, `id for ${this._table}.${opts.column} cannot be undefined`);
@@ -402,7 +403,7 @@ export default class Generic {
     async delete(opts = {}) {
         if (this._view) throw new Err(500, null, 'Internal: View does not support deletions');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
-        if (!opts.column) opts.column = 'id';
+        if (!opts.column) opts.column = Utils.primaryKey(this);
 
         try {
 
