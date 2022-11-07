@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.0.0
+
+- :tada: Automatically determine Primary Key (no longer always set to `id`)
+
 ### v12.0.0
 
 - :arrow_up: `slonik@32` peerDependency
