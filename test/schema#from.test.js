@@ -47,6 +47,7 @@ test('Schema#from - class retrieval (Table)', async (t) => {
     t.deepEquals(Object.keys(Schema.from(pool, Dog)).sort(), [
         'type',
         'additionalProperties',
+        '_primaryKey',
         'properties',
         'required'
     ].sort());
@@ -60,6 +61,7 @@ test('Schema#from - class retrieval (View)', async (t) => {
     t.deepEquals(Object.keys(Schema.from(pool, DogView)).sort(), [
         'type',
         'additionalProperties',
+        '_primaryKey',
         'properties',
         'required'
     ].sort());
@@ -83,6 +85,7 @@ test('Schema#from - instance retrieval', async (t) => {
         t.deepEquals(Object.keys(Schema.from(pool, dog)).sort(), [
             'type',
             'additionalProperties',
+            '_primaryKey',
             'properties',
             'required'
         ].sort());
@@ -101,6 +104,7 @@ test('Schema#from - instance retrieval (View)', async (t) => {
         t.deepEquals(Object.keys(Schema.from(pool, dog)).sort(), [
             'type',
             'additionalProperties',
+            '_primaryKey',
             'properties',
             'required'
         ].sort());

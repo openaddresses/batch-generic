@@ -2,6 +2,7 @@
     "tables": {
         "dog": {
             "type": "object",
+            "_primaryKey": null,
             "additionalProperties": false,
             "properties": {
                 "id": {
@@ -78,6 +79,7 @@
         },
         "spatial_ref_sys": {
             "type": "object",
+            "_primaryKey": "srid",
             "additionalProperties": false,
             "properties": {
                 "srid": {
@@ -133,6 +135,7 @@
     "views": {
         "geography_columns": {
             "type": "object",
+            "_primaryKey": null,
             "additionalProperties": false,
             "properties": {
                 "f_table_catalog": {},
@@ -176,6 +179,7 @@
         },
         "geometry_columns": {
             "type": "object",
+            "_primaryKey": null,
             "additionalProperties": false,
             "properties": {
                 "f_table_catalog": {
