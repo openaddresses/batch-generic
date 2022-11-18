@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.1.0
+
+- :rocket: Add support for `json[]` and `jsonb[]`
+
 ### v13.0.1
 
 - :bug: Don't write internal schema props that AJV will reject
