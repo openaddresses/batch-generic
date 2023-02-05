@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.2.0
+
+- :arrow_up: Update core deps
+
 ### v13.1.0
 
 - :rocket: Add support for `json[]` and `jsonb[]`
