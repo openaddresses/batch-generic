@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.2.1
+
+- :arrow_up: Fix Batch-Error bug
+
 ### v13.2.0
 
 - :arrow_up: Update core deps
