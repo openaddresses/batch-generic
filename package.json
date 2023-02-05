@@ -31,7 +31,7 @@
         "tape": "^5.4.0"
     },
     "dependencies": {
-        "@openaddresses/batch-error": "^2.1.1",
+        "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
         "mkdirp": "^2.0.0",
         "pg-structure": "^7.13.0",
