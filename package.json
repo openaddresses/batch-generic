@@ -7,7 +7,7 @@
     "scripts": {
         "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
         "lint-doc": "documentation lint generic.js",
-        "lint": "eslint generic.js test/**.js lib/**.js",
+        "lint": "eslint generic.js test/**.js lib/**.ts",
         "test": "tape test/**.test.js"
     },
     "repository": {
@@ -33,8 +33,13 @@
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
+        "@types/node": "^18.11.19",
+        "@typescript-eslint/eslint-plugin": "^5.50.0",
+        "@typescript-eslint/parser": "^5.50.0",
         "mkdirp": "^2.0.0",
         "pg-structure": "^7.13.0",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5",
         "wkx": "^0.5.0"
     }
 }

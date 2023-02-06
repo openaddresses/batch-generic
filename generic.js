@@ -472,7 +472,7 @@ export default class Generic {
         if (!schema) throw new Err(500, null, `${id} does not exist!`);
 
         if (schema.type === 'array') {
-            let type = schema.$comment.replace('[', '').replace(']', '');
+            const type = schema.$comment.replace('[', '').replace(']', '');
             if (['json', 'jsonb'].includes(type)) value = value.map((v) => JSON.stringify(v));
 
             return sql.array(value, type);
