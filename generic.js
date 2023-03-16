@@ -471,7 +471,9 @@ export default class Generic {
     static _format(id, schema, value) {
         if (!schema) throw new Err(500, null, `${id} does not exist!`);
 
-        if (schema.type === 'array') {
+        if (value === null || value === undefined) {
+            return sql`NULL`;
+        } else if (schema.type === 'array') {
             let type = schema.$comment.replace('[', '').replace(']', '');
             if (['json', 'jsonb'].includes(type)) value = value.map((v) => JSON.stringify(v));
 
@@ -482,8 +484,6 @@ export default class Generic {
             return sql.timestamp(value);
         } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
             return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
-        } else if (value === null || value === undefined) {
-            return sql`NULL`;
         } else if (typeof value === 'object' && value && value.sql && value.type && value.values) {
             return value;
         } else if (typeof value === 'object') {
