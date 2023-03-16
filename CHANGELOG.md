@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.2.2
+
+- :arrow_up: Fix null check
+
 ### v13.2.1
 
 - :arrow_up: Fix Batch-Error bug
