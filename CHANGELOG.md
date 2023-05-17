@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v13.3.0
+
+- :arrow_up: Update core deps
+
 ### v13.2.2
 
 - :arrow_up: Fix null check
