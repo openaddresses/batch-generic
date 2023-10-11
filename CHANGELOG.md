@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v14.0.1
+
+- :arrow_up: Update Core Deps
+
 ### v14.0.0
 
 - :arrow_up: TimeStamps are now formatted as integer by default to align with Slonik Defaults
