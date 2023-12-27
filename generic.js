@@ -474,7 +474,7 @@ export default class Generic {
         if (value === null || value === undefined) {
             return sql`NULL`;
         } else if (schema.type === 'array') {
-            let type = schema.$comment.replace('[', '').replace(']', '');
+            const type = schema.$comment.replace('[', '').replace(']', '');
             if (['json', 'jsonb'].includes(type)) value = value.map((v) => JSON.stringify(v));
 
             return sql.array(value, type);
