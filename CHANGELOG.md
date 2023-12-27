@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v14.0.3
+
+- :bug: Fix version
+
 ### v14.0.2
 
 - :bug: Allow `false` value as default when using Params.boolean
