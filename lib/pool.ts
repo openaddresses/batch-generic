@@ -1,8 +1,12 @@
 import wkx from 'wkx';
 import bbox from '@turf/bbox';
-import { sql, createPool, createTypeParserPreset } from 'slonik';
+import {
+    sql,
+    createPool,
+    createTypeParserPreset
+} from 'slonik';
 import pgStructure from 'pg-structure';
-import { Pool as SlonikPool } from 'slonik';
+import { DatabasePool as SlonikPool } from 'slonik';
 import PGTypes from './pgtypes.js';
 import Schemas from './schema.js';
 
@@ -19,7 +23,17 @@ import Schemas from './schema.js';
 export default class Pool {
     _pool: SlonikPool;
     _connstr: string;
-    _schemas: null |  | object;
+    _schemas: null | {
+        tables: {
+            [k: string]: any;
+        };
+        views: {
+            [k: string]: any;
+        }
+    };
+
+    query: Function
+    stream: Function
 
     constructor(pool: Pool, connstr: string) {
         if (!pool) throw new Error('Pool required in constructor');
@@ -45,15 +59,15 @@ export default class Pool {
      * @param {Object} [opts.schemas]               JSON Schema Options
      * @param {Object} [opts.schemas.dir]               JSON Schema Directory
      */
-    static async connect(postgres: string, opts = {
+    static async connect(postgres: string, opts: {
         parsing?: {
             geometry?: boolean;
-        },
+        };
         retry?: number;
         schemas?: {
-            dir?: string
-        }
-    }) {
+            dir?: string;
+        };
+    } = {}) {
         if (!opts) opts = {};
         if (!opts.parsing) opts.parsing = {};
         if (!opts.parsing.geometry) opts.parsing.geometry = false;
@@ -76,14 +90,14 @@ export default class Pool {
         }
 
         let pool = false;
-        let retry = parseInt(opts.retry);
+        let retry = opts.retry;
         do {
             try {
                 pool = await createPool(postgres, {
                     typeParsers
                 });
 
-                await pool.query(sql`SELECT NOW()`);
+                await pool.query(sql.unsafe`SELECT NOW()`);
             } catch (err) {
                 console.error(err);
                 pool = false;

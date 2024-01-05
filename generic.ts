@@ -1,6 +1,6 @@
 import Err from '@openaddresses/batch-error';
-import { sql } from 'slonik';
-import { Transform } from 'stream';
+import { sql, createSqlTag, QueryResult } from 'slonik';
+import { Transform, Stream } from 'node:stream';
 import Pool from './lib/pool.js';
 import Params from './lib/params.js';
 import Schema from './lib/schema.js';
@@ -8,6 +8,11 @@ import Utils from './lib/utils.js';
 import { z } from 'zod';
 
 export { Pool, Params, Schema };
+
+export type GenericListResult<T extends z.ZodTypeAny> = {
+    total: number;
+    items: T[];
+}
 
 /**
  * @class
@@ -18,7 +23,7 @@ export { Pool, Params, Schema };
 export default class Generic<T extends z.ZodTypeAny> {
     static _table?: string;
     static _view?: string;
-    static _schema: T;
+    static _schema: z.ZodTypeAny;
 
     _pool: Pool;
     _schema: T;
@@ -29,9 +34,17 @@ export default class Generic<T extends z.ZodTypeAny> {
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
 
         this._pool = pool;
+        // @ts-ignore
         this._schema = this.constructor._schema;
+        // @ts-ignore
         this._table = this.constructor._table;
+        // @ts-ignore
         this._view = this.constructor._view;
+
+        const typeAliases = {};
+        typeAliases[(this._table || this._view)] = this._schema;
+        createSqlTag({ typeAliases });
+
     }
 
     /**
@@ -55,7 +68,7 @@ export default class Generic<T extends z.ZodTypeAny> {
         query.order = Params.order(query.order);
 
         return new Promise((resolve) => {
-            pool.stream(sql`
+            pool.stream(sql.typeAlias(this._table || this._view )`
                 SELECT
                     *
                 FROM
@@ -89,9 +102,9 @@ export default class Generic<T extends z.ZodTypeAny> {
     static async list(pool: Pool, query: {
         limit?: number;
         page?: number;
-        sort?: number;
+        sort?: string;
         order?: string;
-    } = {}): Promise<StdList> {
+    } = {}): Promise<GenericListResult<z.ZodType<any, any, any>>> {
         if (!this._table && !this._view) throw new Err(500, null, 'Internal: Table or View not defined');
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
 
@@ -102,7 +115,7 @@ export default class Generic<T extends z.ZodTypeAny> {
 
         let pgres;
         try {
-            pgres = await pool.query(sql`
+            pgres = await pool.query(sql.typeAlias('list')`
                 SELECT
                     count(*) OVER() AS count,
                     *
@@ -128,7 +141,7 @@ export default class Generic<T extends z.ZodTypeAny> {
      * @param pool                Generic Pool
      * @param bject}  base                Object containing base properties
      */
-    static async generate(pool: Pool, base: object): Promise<T> {
+    static async generate(pool: Pool, base: object): Promise<z.ZodType<any, any, any>> {
         if (this._view) throw new Err(500, null, 'Internal: View does not support generation');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
@@ -143,11 +156,11 @@ export default class Generic<T extends z.ZodTypeAny> {
 
         let pgres;
         try {
-            pgres = await pool.query(sql`
+            pgres = await pool.query(sql.typeAlias(this._table || this._view)`
                 INSERT INTO ${sql.identifier([this._table])} (
-                    ${sql.join(cols, sql`, `)}
+                    ${sql.join(cols, sql.fragment`, `)}
                 ) VALUES (
-                    ${sql.join(commits, sql`, `)}
+                    ${sql.join(commits, sql.fragment`, `)}
                 )
                 RETURNING
                     *
@@ -184,18 +197,18 @@ export default class Generic<T extends z.ZodTypeAny> {
         const commits = [];
 
         for (const f in patch) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], patch[f])], sql` = `));
+            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, this._pool._schemas.tables[this._table].properties[f], patch[f])], sql.fragment` = `));
         }
 
         if (!commits.length) return this;
 
         let pgres;
         try {
-            pgres = await this._pool.query(sql`
+            pgres = await this._pool.query(sql.typeAlias(this._table || this._view)`
                 UPDATE
                     ${sql.identifier([this._table])}
                 SET
-                    ${sql.join(commits, sql`, `)}
+                    ${sql.join(commits, sql.fragment`, `)}
                 WHERE
                     ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
                 RETURNING
@@ -224,7 +237,9 @@ export default class Generic<T extends z.ZodTypeAny> {
      *
      * @returns {Generic}
      */
-    static async commit(pool: Pool, id, patch = {}, opts = {}) {
+    static async commit(pool: Pool, id: any, patch = {}, opts: {
+        column?: string
+    } = {}) {
         if (this._view) throw new Err(500, null, 'Internal: View does not support commits');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
@@ -235,18 +250,18 @@ export default class Generic<T extends z.ZodTypeAny> {
         const commits = [];
 
         for (const f in patch) {
-            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, pool._schemas.tables[this._table].properties[f], patch[f])], sql` = `));
+            commits.push(sql.join([sql.identifier([f]), Generic._format(`${this._table}.${f}`, pool._schemas.tables[this._table].properties[f], patch[f])], sql.fragment` = `));
         }
 
         if (!commits.length) throw new Err(400, null, 'Nothing to commit');
 
         let pgres;
         try {
-            pgres = await pool.query(sql`
+            pgres = await pool.query(sql.typeAlias(this._table || this._view)`
                 UPDATE
                     ${sql.identifier([this._table])}
                 SET
-                    ${sql.join(commits, sql`, `)}
+                    ${sql.join(commits, sql.fragment`, `)}
                 WHERE
                     ${sql.identifier([this._table, opts.column])} = ${id}
                 RETURNING
@@ -283,7 +298,7 @@ export default class Generic<T extends z.ZodTypeAny> {
 
         let pgres;
         try {
-            pgres = await pool.query(sql`
+            pgres = await pool.query(sql.typeAlias(this._table || this._view)`
                 SELECT
                     *
                 FROM
@@ -321,20 +336,18 @@ export default class Generic<T extends z.ZodTypeAny> {
      * Deserialize Postgres Rows into an object
      *
      * @param {Object} pgres
-     * @param {Object} alias
      *
      * @returns {Object}
      */
-    static deserialize_list(pgres, alias) {
+    static deserialize_list(pgres: QueryResult<any>): GenericListResult<z.ZodType<any, any, any>> {
         const res = {
-            total: pgres.rows.length
+            total: pgres.rows.length,
+            items: []
         };
 
         if (pgres.rows[0] && pgres.rows[0].count && !isNaN(parseInt(pgres.rows[0].count))) {
             res.total = parseInt(pgres.rows[0].count);
         }
-
-        res[alias || this._table || this._view || 'items'] = [];
 
         for (const row of pgres.rows) {
             const single = {};
@@ -344,7 +357,7 @@ export default class Generic<T extends z.ZodTypeAny> {
                 single[key] = row[key];
             }
 
-            res[alias || this._table || this._view || 'items'].push(single);
+            res.items.push(single);
         }
 
         return res;
@@ -358,7 +371,7 @@ export default class Generic<T extends z.ZodTypeAny> {
      *
      * @returns {Generic}
      */
-    static deserialize(pool: Pool, pgres) {
+    static deserialize(pool: Pool, pgres): z.ZodType<any, any, any> {
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
 
         const single = new this(pool);
@@ -369,7 +382,7 @@ export default class Generic<T extends z.ZodTypeAny> {
             single[key] = row[key];
         }
 
-        return single;
+        return this._schema.parse(single);
     }
 
     /**
@@ -382,7 +395,7 @@ export default class Generic<T extends z.ZodTypeAny> {
      *
      * @returns {boolean}
      */
-    static async delete(pool: Pool, id, opts: {
+    static async delete(pool: Pool, id: any, opts: {
         column?: string
     } = {}) {
         if (this._view) throw new Err(500, null, 'Internal: View does not support deletions');
@@ -394,7 +407,7 @@ export default class Generic<T extends z.ZodTypeAny> {
 
         try {
 
-            await pool.query(sql`
+            await pool.query(sql.typeAlias('void')`
                 DELETE FROM ${sql.identifier([this._table])}
                     WHERE
                         ${sql.identifier([this._table, opts.column])} = ${id}
@@ -424,7 +437,7 @@ export default class Generic<T extends z.ZodTypeAny> {
 
         try {
 
-            await this._pool.query(sql`
+            await this._pool.query(sql.typeAlias('void')`
                 DELETE FROM ${sql.identifier([this._table])}
                     WHERE
                         ${sql.identifier([this._table, opts.column])} = ${this[opts.column]}
@@ -444,14 +457,14 @@ export default class Generic<T extends z.ZodTypeAny> {
      *
      * @returns
      */
-    static async clear(pool: Pool) {
+    static async clear(pool: Pool): Promise<boolean> {
         if (this._view) throw new Err(500, null, 'Internal: View does not support clears');
         if (!this._table) throw new Err(500, null, 'Internal: Table not defined');
 
         if (!pool || !pool.query) throw new Err(500, null, 'Postgres Connection required');
 
         try {
-            await pool.query(sql`
+            await pool.query(sql.typeAlias('void')`
                 DELETE FROM ${sql.identifier([this._table])}
             `);
 
@@ -485,28 +498,35 @@ export default class Generic<T extends z.ZodTypeAny> {
      *
      * @returns {Object} SQL Value
      */
-    static _format(id, schema, value) {
+    static _format(id: any, schema, value) {
         if (!schema) throw new Err(500, null, `${id} does not exist!`);
 
         if (value === null || value === undefined) {
-            return sql`NULL`;
+            return sql.fragment`NULL`;
         } else if (schema.type === 'array') {
             const type = schema.$comment.replace('[', '').replace(']', '');
             if (['json', 'jsonb'].includes(type)) value = value.map((v) => JSON.stringify(v));
 
             return sql.array(value, type);
         } else if (schema.$comment === 'geometry' && typeof value === 'object') {
-            return sql`ST_GeomFromGeoJSON(${JSON.stringify(value)})`;
+            return sql.fragment`ST_GeomFromGeoJSON(${JSON.stringify(value)})`;
         } else if (schema.$comment === 'timestamp' && value instanceof Date) {
             return sql.timestamp(value);
         } else if (schema.$comment === 'timestamp' && !isNaN(parseInt(value))) {
-            return sql`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
+            return sql.fragment`TO_TIMESTAMP(${value}::BIGINT / 1000)`; // Assume unix timestamp
         } else if (typeof value === 'object' && value && value.sql && value.type && value.values) {
             return value;
         } else if (typeof value === 'object') {
             return `${JSON.stringify(value)}`;
         } else {
-            return sql`${value}`;
+            return sql.fragment`{value}`;
         }
     }
 }
+
+interface Ctor {
+    myStatic: this extends typeof Generic<infer T extends z.ZodType<any, any, any>> ? T : never;
+}
+
+const C: typeof Generic & Ctor = Generic as any;
+
