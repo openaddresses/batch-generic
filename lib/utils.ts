@@ -1,3 +1,6 @@
+import Generic from '../generic.js';
+import Pool from './pool.js';
+
 /**
  * @class
  */
@@ -9,7 +12,7 @@ export default class Utils {
      * @param {Pool} [pool] If the Generic has not been instantiated, pass the pool
      * @returns {String}
      */
-    static primaryKey(generic, pool) {
+    static primaryKey(generic: Generic, pool?: Pool) {
         const type = generic._table ? 'tables' : 'views';
         const name = generic._table || generic._view;
 

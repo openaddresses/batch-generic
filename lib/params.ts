@@ -11,13 +11,15 @@ export default class Params {
      * Check the validity of a date param (parsable with moment) and return as ISO String
      *  or set to null if undefined. An HTTP error will be thrown if the param is not parsable
      *
-     * @param {string} date Potential date to parse
-     * @param {Object} [opts] Options object
-     * @param {string} [opts.default] Default value to set if param is falsy
+     * @param date Potential date to parse
+     * @param [opts] Options object
+     * @param [opts.default] Default value to set if param is falsy
      *
-     * @returns {Null|string} Parsed date or null
+     * @returns Parsed date or null
      */
-    static timestamp(date, opts = {}) {
+    static timestamp(date: unknown, opts: {
+        default?: string;
+    } = {}): string | null {
         if (date === undefined || date === null) {
             return opts.default !== undefined ? opts.default : null;
         }
@@ -32,13 +34,15 @@ export default class Params {
     /**
      * Ensure a param is a number or set to null if falsy
      *
-     * @param {string} num Potential number to parse
-     * @param {Object} [opts] Options object
-     * @param {string} [opts.default] Default value to set if param is falsy
+     * @param num Potential number to parse
+     * @param [opts] Options object
+     * @param [opts.default] Default value to set if param is falsy
      *
-     * @returns {Null|string}
+     * @returns Parsed number or null
      */
-    static number(num, opts = {}) {
+    static number(num: unknown, opts: {
+        default?: number;
+    } = { }): number | null {
         if (num === undefined || num === null) {
             return isNaN(Number(opts.default)) ? null : Number(opts.default);
         }
@@ -53,13 +57,15 @@ export default class Params {
     /**
      * Ensure a param is an integer or set to null if falsy
      *
-     * @param {string} num Potential integer to parse
-     * @param {Object} [opts] Options object
-     * @param {string} [opts.default] Default value to set if param is falsy
+     * @param num Potential integer to parse
+     * @param [opts] Options object
+     * @param [opts.default] Default value to set if param is falsy
      *
-     * @returns {Null|string}
+     * @returns Parsed number or null
      */
-    static integer(num, opts = {}) {
+    static integer(num: unknown, opts: {
+        default?: number
+    } = {}): number | null {
         if (num === undefined || num === null) {
             return isNaN(parseInt(opts.default)) ? null : parseInt(opts.default);
         }
@@ -74,13 +80,15 @@ export default class Params {
     /**
      * Ensure a param is a string or set to null if falsy
      *
-     * @param {string} str Potential string to parse
-     * @param {Object} [opts] Options object
-     * @param {string} [opts.default] Default value to set if param is falsy
+     * @param str Potential string to parse
+     * @param [opts] Options object
+     * @param [opts.default] Default value to set if param is falsy
      *
-     * @returns {Null|string}
+     * @returns Parsed string or null
      */
-    static string(str, opts = {}) {
+    static string(str: unknown, opts: {
+        default?: string;
+    } = {}): string | null {
         if (str === undefined || str === null) {
             return typeof opts.default === 'string' ? opts.default : null;
         }
@@ -91,11 +99,11 @@ export default class Params {
     /**
      * Check the validity of an order option and return an slonik sql object
      *
-     * @param {string} order Order Param (asc/desc)
+     * @param order Order Param (asc/desc)
      *
-     * @return {Object}
+     * @return An SQL Order Object
      */
-    static order(order) {
+    static order(order: string): sql {
         if (!order || order === 'asc') {
             return sql`asc`;
         } else {
@@ -106,13 +114,15 @@ export default class Params {
     /**
      * Check the validity of a boolean option
      *
-     * @param {string} bool Boolean Param
-     * @param {Object} [opts] Options object
-     * @param {string} [opts.default] Default value to set if param is falsy
+     * @param bool Boolean Param
+     * @param [opts] Options object
+     * @param [opts.default] Default value to set if param is falsy
      *
-     * @return {boolean}
+     * @return return a parsed boolean
      */
-    static boolean(bool, opts = {}) {
+    static boolean(bool: unknown, opts: {
+        default: boolean;
+    } = {}): boolean | null {
         if (bool === undefined || bool === null) {
             return opts.default !== undefined ? opts.default : null;
         } else if (bool === 'true') {

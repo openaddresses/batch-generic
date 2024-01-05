@@ -2,6 +2,7 @@ import wkx from 'wkx';
 import bbox from '@turf/bbox';
 import { sql, createPool, createTypeParserPreset } from 'slonik';
 import pgStructure from 'pg-structure';
+import { Pool as SlonikPool } from 'slonik';
 import PGTypes from './pgtypes.js';
 import Schemas from './schema.js';
 
@@ -16,7 +17,11 @@ import Schemas from './schema.js';
 
  */
 export default class Pool {
-    constructor(pool, connstr) {
+    _pool: SlonikPool;
+    _connstr: string;
+    _schemas: null |  | object;
+
+    constructor(pool: Pool, connstr: string) {
         if (!pool) throw new Error('Pool required in constructor');
         if (!connstr) throw new Error('ConnStr required in constructor');
 
@@ -40,7 +45,15 @@ export default class Pool {
      * @param {Object} [opts.schemas]               JSON Schema Options
      * @param {Object} [opts.schemas.dir]               JSON Schema Directory
      */
-    static async connect(postgres, opts = {}) {
+    static async connect(postgres: string, opts = {
+        parsing?: {
+            geometry?: boolean;
+        },
+        retry?: number;
+        schemas?: {
+            dir?: string
+        }
+    }) {
         if (!opts) opts = {};
         if (!opts.parsing) opts.parsing = {};
         if (!opts.parsing.geometry) opts.parsing.geometry = false;
