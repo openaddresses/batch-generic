@@ -2,12 +2,12 @@
     "name": "@openaddresses/batch-generic",
     "type": "module",
     "version": "14.0.3",
-    "description": "JSON Schema based ORM for Slonik",
+    "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
     "main": "generic.js",
     "scripts": {
         "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
         "lint-doc": "documentation lint generic.js",
-        "lint": "eslint generic.js test/**.js lib/**.js",
+        "lint": "eslint generic.ts test/**.ts lib/**.ts",
         "test": "tape test/**.test.js"
     },
     "repository": {
@@ -21,8 +21,9 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "moment": "2.x.x",
-        "slonik": "32.x.x"
+        "drizzle-kit": "^0.20.10",
+        "drizzle-orm": "^0.29.3",
+        "moment": "2.x.x"
     },
     "devDependencies": {
         "documentation": "^14.0.0",
@@ -35,6 +36,7 @@
         "@turf/bbox": "^6.5.0",
         "mkdirp": "^3.0.0",
         "pg-structure": "^7.13.0",
+        "postgres": "^3.4.3",
         "wkx": "^0.5.0"
     }
 }
