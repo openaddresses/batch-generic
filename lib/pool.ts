@@ -93,10 +93,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         let retry = opts.retry;
         do {
             try {
-                pool = new Pool(connstr, {
-                    schema
-                });
-
+                pool = new Pool(connstr, { schema });
                 await pool.select(sql`NOW()`);
             } catch (err) {
                 console.error(err);
@@ -114,12 +111,11 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             }
         } while (!pool);
 
-        const genericpool = new Pool(pool, { schema });
-        if (opts.jsonschema && opts.jsonschema.dir) await genericpool.genJSONSchemas({
+        if (opts.jsonschema && opts.jsonschema.dir) await pool.genJSONSchemas({
             dir: opts.jsonschema.dir
         });
 
-        return genericpool;
+        return pool;
     }
 
     /**
