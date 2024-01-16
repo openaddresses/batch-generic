@@ -5,6 +5,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
 import Err from '@openaddresses/batch-error';
 import { type InferSelectModel } from 'drizzle-orm';
+import Pool from './lib/pool.ts';
 
 export interface GenericList<T> {
     total: number;
@@ -154,6 +155,10 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
         return generic as InferSelectModel<T>;
     }
 
+    async clear(): Promise<void> {
+        await this.pool.delete(this.generic)
+    }
+
     async generate(values: object): Promise<InferSelectModel<T>> {
         const generic = await this.pool.insert(this.generic)
             .values(values)
@@ -171,4 +176,8 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
         await this.pool.delete(this.generic)
             .where(eq(key, id))
     }
+}
+
+export {
+    Pool
 }

@@ -1,41 +1,13 @@
-import Err from '@openaddresses/batch-error';
 import { mkdirp } from 'mkdirp';
-import path from 'path';
-import fs from 'fs/promises';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import { DbStructure } from './pool.ts'
 
 /**
  * @class
  */
 export default class Schema {
-    /**
-     * Given a class or instance that extends generic, return a cloned schema
-     *
-     * @param {Pool} pool Batch Generic Postgres Pool
-     * @param {Generic} cls Class which extends generic
-     *
-     * @returns {Object} JSON Schema
-     */
-    static from(pool, cls) {
-        if (cls._table) {
-            const table = cls._table;
-            const schema = pool._schemas.tables[table];
-
-            if (!schema) throw new Err(500, null, `The schema for the table "${table}" could not be found`);
-            return JSON.parse(JSON.stringify(pool._schemas.tables[table]));
-        } else if (cls._view) {
-            const view = cls._view;
-            const schema = pool._schemas.views[view];
-
-            if (!schema) throw new Err(500, null, `The schema for the view "${view}" could not be found`);
-            return JSON.parse(JSON.stringify(pool._schemas.views[view]));
-
-        } else {
-            throw new Err(500, null, 'Cannot use Schema.from(..) on instance/class that does not extend Generic');
-        }
-
-    }
-
-    static async write(schemas, dir) {
+    static async write(schemas: DbStructure, dir: string | URL) {
         if (dir instanceof URL) {
             dir = dir.pathname;
         } else {

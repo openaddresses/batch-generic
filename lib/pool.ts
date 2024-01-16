@@ -1,34 +1,42 @@
-import wkx from 'wkx';
-import bbox from '@turf/bbox';
+//import wkx from 'wkx';
+//import bbox from '@turf/bbox';
 import pgStructure from 'pg-structure';
 import PGTypes from './pgtypes.ts';
 import Schemas from './schema.ts';
 import postgres from 'postgres';
-import {sql } from 'drizzle-orm';
+import { sql, ExtractTablesWithRelations } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
-import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { PostgresJsDatabase, PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
+import { PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {
   createTableRelationsHelpers,
   extractTablesRelationalConfig
 } from "drizzle-orm/relations";
 
-type TSchema = Record<string, unknown>;
+export type PostgresJsDatabase<TSchema extends Record<string, unknown> = Record<string, never>> = PgDatabase<PostgresJsQueryResultHKT, TSchema>;
+
+export type DbStructure = {
+    tables: {
+        [k: string]: object;
+    };
+    views: {
+        [k: string]: object;
+    };
+}
 
 /**
  * @class
  * @param connstr       Postgres Connection String
  * @param schema        DrizzleORM Schema
  */
-export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
+export default class Pool<TSchema extends Record<string, unknown> = Record<string, never>> extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
     connstr: string;
-    schema?: TSchema;
-    jsonschema?: object;
+    schema: TSchema;
+    pgschema?: DbStructure;
 
     constructor(connstr: string, config: {
-        schema?: TSchema
-    } = {}) {
+        schema: TSchema
+    }) {
         const client = postgres(connstr);
 
         let schema;
@@ -64,16 +72,15 @@ export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> 
      * @param [opts.jsonschema]               JSON Schema Options
      * @param [opts.jsonschema.dir]               JSON Schema Directory
      */
-    static async connect(connstr: string, opts: {
-        schema?: TSchema;
+    static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: string, schema: TSchema, opts: {
         retry?: number;
         jsonschema?: {
-            dir: string;
+            dir: string | URL;
         };
         parsing?: {
             geometry?: boolean
         }
-    } = {}) {
+    } = {}): Promise<Pool<TSchema>> {
         if (!opts.parsing) opts.parsing = {};
         if (!opts.parsing.geometry) opts.parsing.geometry = false;
         if (!opts.retry) opts.retry = 5;
@@ -87,10 +94,10 @@ export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> 
         do {
             try {
                 pool = new Pool(connstr, {
-                    schema: opts.schema
+                    schema
                 });
 
-                await pool.query(sql`SELECT NOW()`);
+                await pool.select(sql`NOW()`);
             } catch (err) {
                 console.error(err);
                 pool = false;
@@ -107,9 +114,7 @@ export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> 
             }
         } while (!pool);
 
-        const genericpool = new Pool(pool, {
-            schema: opts.schema
-        });
+        const genericpool = new Pool(pool, { schema });
         if (opts.jsonschema && opts.jsonschema.dir) await genericpool.genJSONSchemas({
             dir: opts.jsonschema.dir
         });
@@ -124,7 +129,7 @@ export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> 
      * @param {Object} opts See Pool.connect() documentation on `opts.schemas`
      */
     async genJSONSchemas(opts: {
-        dir: string;
+        dir: string | URL;
     }) {
         const res = {
             tables: {},
@@ -145,7 +150,7 @@ export default class Pool extends PgDatabase<PostgresJsQueryResultHKT, TSchema> 
             }
         }
 
-        this.jsonschema = res;
+        this.pgschema = res;
 
         if (opts.dir) await Schemas.write(res, opts.dir);
 
