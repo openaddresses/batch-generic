@@ -1,6 +1,6 @@
 //import wkx from 'wkx';
 //import bbox from '@turf/bbox';
-import pgStructure from 'pg-structure';
+import { pgStructure } from 'pg-structure/dist/main.js';
 import PGTypes from './pgtypes.ts';
 import Schemas from './schema.ts';
 import postgres from 'postgres';
