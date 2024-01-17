@@ -2,8 +2,8 @@ import { pgStructure } from 'pg-structure/dist/main.js';
 import PGTypes from './pgtypes.ts';
 import Schemas from './schema.ts';
 import postgres from 'postgres';
-import { sql, ExtractTablesWithRelations } from 'drizzle-orm';
-import { customType, PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import { PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {

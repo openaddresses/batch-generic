@@ -1,4 +1,4 @@
-import { sql, eq, asc, desc } from 'drizzle-orm';
+import { sql, eq, asc, desc, is } from 'drizzle-orm';
 import { SQL, Table, TableConfig, Column, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
 import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -142,11 +142,9 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
     }
 
     async from(id: unknown | SQL<unknown>): Promise<InferSelectModel<T>> {
-        const key = this.#primaryKey(true);
-
         const pgres = await this.pool.select()
             .from(this.generic)
-            .where(eq(key, id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#primaryKey(true), id))
             .limit(1)
 
         if (pgres.length !== 1) throw new Err(404, null, `${this.generic.name} Not Found`);
@@ -154,12 +152,10 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
         return pgres[0] as InferSelectModel<T>;
     }
 
-    async commit(id: unknown, values: object): Promise<InferSelectModel<T>> {
-        const primaryKey = this.#primaryKey(true);
-
+    async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
         const generic = await this.pool.update(this.generic)
             .set(values)
-            .where(eq(primaryKey, id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#primaryKey(true), id))
             .returning();
 
         return generic as InferSelectModel<T>;
@@ -177,14 +173,9 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
         return generic as InferSelectModel<T>;
     }
 
-    async delete(id: unknown, opts: {
-        column?: string;
-    } = {}): Promise<void> {
-        let key = this.#primaryKey(true);
-        if (opts.column) key = this.#key(opts.column);
-
+    async delete(id: unknown | SQL<unknown>): Promise<void> {
         await this.pool.delete(this.generic)
-            .where(eq(key, id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#primaryKey(true), id))
     }
 }
 
