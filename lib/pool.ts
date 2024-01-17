@@ -115,6 +115,10 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             dir: opts.jsonschema.dir
         });
 
+        console.error('HERE');
+        await migrate(pool, { migrationsFolder: 'migrations' });
+        console.error('POST');
+
         return pool;
     }
 

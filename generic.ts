@@ -7,6 +7,14 @@ import Err from '@openaddresses/batch-error';
 import { type InferSelectModel } from 'drizzle-orm';
 import Pool from './lib/pool.ts';
 
+export function Param(param) {
+    if (param === undefined) {
+        return null;
+    } else {
+        return param;
+    }
+}
+
 export interface GenericList<T> {
     total: number;
     items: Array<T>
