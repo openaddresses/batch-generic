@@ -7,6 +7,8 @@ import Err from '@openaddresses/batch-error';
 import { type InferSelectModel } from 'drizzle-orm';
 import Pool from './lib/pool.ts';
 
+export * from './lib/postgis.ts'
+
 export function Param(param) {
     if (param === undefined) {
         return null;

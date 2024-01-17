@@ -26,15 +26,16 @@
         "moment": "2.x.x"
     },
     "devDependencies": {
-        "documentation": "^14.0.0",
         "@typescript-eslint/eslint-plugin": "^6.0.0",
         "@typescript-eslint/parser": "^6.0.0",
+        "documentation": "^14.0.0",
         "eslint": "^8.33.0",
         "tape": "^5.4.0"
     },
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
+        "@types/geojson": "^7946.0.13",
         "mkdirp": "^3.0.0",
         "pg-structure": "^7.15.0",
         "postgres": "^3.4.3",

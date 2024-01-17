@@ -1,11 +1,9 @@
-//import wkx from 'wkx';
-//import bbox from '@turf/bbox';
 import { pgStructure } from 'pg-structure/dist/main.js';
 import PGTypes from './pgtypes.ts';
 import Schemas from './schema.ts';
 import postgres from 'postgres';
 import { sql, ExtractTablesWithRelations } from 'drizzle-orm';
-import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
+import { customType, PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import { PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {
@@ -65,8 +63,6 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
      *
      * @param connstr                 Postgres Connection String
      * @param [opts]                   Options Object
-     * @param [opts.parsing]               Support for automatically parsing some less common types
-     * @param [opts.parsing.geometry]          Automatically convert POSTGIS geometry to GeoJSON
      * @param [opts.retry=5]               Number of times to retry an initial connection
      * @param [opts.schema]
      * @param [opts.jsonschema]               JSON Schema Options
@@ -77,17 +73,8 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         jsonschema?: {
             dir: string | URL;
         };
-        parsing?: {
-            geometry?: boolean
-        }
     } = {}): Promise<Pool<TSchema>> {
-        if (!opts.parsing) opts.parsing = {};
-        if (!opts.parsing.geometry) opts.parsing.geometry = false;
         if (!opts.retry) opts.retry = 5;
-
-        if (opts.parsing.geometry) {
-            //GEOJSON PARSING
-        }
 
         let pool;
         let retry = opts.retry;
