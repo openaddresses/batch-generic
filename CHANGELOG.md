@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.2.0
+
+- Update Return Type
+
 ### v15.1.1
 
 - Remove debug code
