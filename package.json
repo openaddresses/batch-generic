@@ -3,10 +3,11 @@
     "type": "module",
     "version": "15.0.0",
     "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
-    "main": "generic.js",
+    "main": "dist/generic.js",
+    "types": "./generic.ts",
     "scripts": {
         "lint": "eslint generic.ts lib/**.ts",
-        "test": "test/test"
+        "build": "tsc --build"
     },
     "repository": {
         "type": "git",
