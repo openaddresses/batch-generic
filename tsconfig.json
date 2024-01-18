@@ -4,6 +4,8 @@
     },
     "allowJs": true,
     "compilerOptions": {
+        "noEmit": true,
+        "skipLibCheck": true,
         "module": "es2022",
         "esModuleInterop": true,
         "allowImportingTsExtensions": true,
@@ -12,12 +14,7 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
-        "baseUrl": ".",
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "baseUrl": "."
     },
     "include": [
         "generic.ts",

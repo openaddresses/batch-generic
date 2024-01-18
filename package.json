@@ -3,9 +3,11 @@
     "type": "module",
     "version": "15.0.2",
     "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
+    "main": "./dist/generic.js",
     "types": "./generic.ts",
     "scripts": {
-        "lint": "eslint generic.ts lib/**.ts"
+        "lint": "eslint generic.ts lib/**.ts",
+        "build": "tsc --build"
     },
     "repository": {
         "type": "git",
@@ -25,17 +27,19 @@
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.0.0",
         "@typescript-eslint/parser": "^6.0.0",
-        "documentation": "^14.0.0",
         "eslint": "^8.33.0",
-        "tape": "^5.4.0"
+        "tape": "^5.4.0",
+        "typescript": "^5.3.3"
     },
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
+        "@types/express": "^4.17.21",
         "@types/geojson": "^7946.0.13",
         "mkdirp": "^3.0.0",
         "pg-structure": "^7.15.0",
         "postgres": "^3.4.3",
+        "turbo": "^1.11.3",
         "wkx": "^0.5.0"
     }
 }
