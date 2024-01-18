@@ -3,11 +3,9 @@
     "type": "module",
     "version": "15.0.1",
     "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
-    "main": "dist/generic.js",
     "types": "./generic.ts",
     "scripts": {
-        "lint": "eslint generic.ts lib/**.ts",
-        "build": "tsc --build"
+        "lint": "eslint generic.ts lib/**.ts"
     },
     "repository": {
         "type": "git",

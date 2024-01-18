@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.0.2
+
+- Just include types
+
 ### v15.0.1
 
 - Add TS build step to release
