@@ -29,4 +29,7 @@ export const geometry = customType<{
         geom.bbox =  bbox(geom);
         return geom;
     },
+    toDriver(value: Geometry): string {
+        return wkx.Geometry.parseGeoJSON(value).toWkt();
+    }
 });

@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.1.0
+
+- Add `toDriver` for postgis integration
+
 ### v15.0.5
 
 - Add npm ignore
