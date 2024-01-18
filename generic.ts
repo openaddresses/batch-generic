@@ -1,14 +1,13 @@
 import { sql, eq, asc, desc, is } from 'drizzle-orm';
 import { SQL, Table, TableConfig, Column, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
-/** @ignore */
 import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
 import Err from '@openaddresses/batch-error';
 import { type InferSelectModel } from 'drizzle-orm';
-import Pool from './lib/pool.ts';
+import Pool from './lib/pool.js';
 
-export * from './lib/postgis.ts'
+export * from './lib/postgis.js'
 
 export function Param(param) {
     if (param === undefined) {
@@ -36,12 +35,12 @@ export type GenericStreamInput = {
 }
 
 export class GenericEmitter<T extends Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>> extends EventEmitter {
-    pool: PostgresJsDatabase<typeof import("/home/null/Development/dfpc-coe/etl/api/lib/schema")>;
+    pool: PostgresJsDatabase<any>;
     generic: PgTableWithColumns<any>;
     query: GenericStreamInput;
 
     constructor(
-        pool: PostgresJsDatabase<typeof import("/home/null/Development/dfpc-coe/etl/api/lib/schema")>,
+        pool: PostgresJsDatabase<any>,
         generic: T,
         query: GenericStreamInput
     ) {
@@ -84,11 +83,11 @@ export class GenericEmitter<T extends Table<TableConfig<Column<ColumnBaseConfig<
 }
 
 export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>> {
-    pool: PostgresJsDatabase<typeof import("/home/null/Development/dfpc-coe/etl/api/lib/schema")>;
+    pool: PostgresJsDatabase<any>;
     generic: PgTableWithColumns<any>;
 
     constructor(
-        pool: PostgresJsDatabase<typeof import("/home/null/Development/dfpc-coe/etl/api/lib/schema")>,
+        pool: PostgresJsDatabase<any>,
         generic: T
     ) {
         this.pool = pool;

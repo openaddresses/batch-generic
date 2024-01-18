@@ -3,11 +3,9 @@
         "esm": true
     },
     "compilerOptions": {
-        "noEmit": true,
         "skipLibCheck": true,
         "module": "es2022",
         "esModuleInterop": true,
-        "allowImportingTsExtensions": true,
         "target": "es2022",
         "noImplicitAny": false,
         "moduleResolution": "node",

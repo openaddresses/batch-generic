@@ -1,7 +1,7 @@
 import { mkdirp } from 'mkdirp';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { DbStructure } from './pool.ts'
+import { DbStructure } from './pool.js'
 
 /**
  * @class

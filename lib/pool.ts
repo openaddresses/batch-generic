@@ -1,6 +1,6 @@
 import { pgStructure } from 'pg-structure/dist/main.js';
-import PGTypes from './pgtypes.ts';
-import Schemas from './schema.ts';
+import PGTypes from './pgtypes.js';
+import Schemas from './schema.js';
 import postgres from 'postgres';
 import { sql } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
