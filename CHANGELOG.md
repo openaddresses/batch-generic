@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.0.5
+
+- Add npm ignore
+
 ### v15.0.4
 
 - Just include types
