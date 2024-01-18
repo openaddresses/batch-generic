@@ -153,12 +153,12 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
     }
 
     async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
-        const generic = await this.pool.update(this.generic)
+        const pgres = await this.pool.update(this.generic)
             .set(values)
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.#primaryKey(true), id))
             .returning();
 
-        return generic as InferSelectModel<T>;
+        return pgres[0] as InferSelectModel<T>;
     }
 
     async clear(): Promise<void> {
@@ -166,11 +166,11 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
     }
 
     async generate(values: object): Promise<InferSelectModel<T>> {
-        const generic = await this.pool.insert(this.generic)
+        const pgres = await this.pool.insert(this.generic)
             .values(values)
             .returning();
 
-        return generic as InferSelectModel<T>;
+        return pgres[0] as InferSelectModel<T>;
     }
 
     async delete(id: unknown | SQL<unknown>): Promise<void> {
