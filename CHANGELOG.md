@@ -10,6 +10,14 @@
 
 ## Version History
 
+### v15.0.1
+
+- Add TS build step to release
+
+### v15.0.0
+
+- Update from `slonik` to `drizzle` and migrate to TS
+
 ### v14.0.3
 
 - :bug: Fix version

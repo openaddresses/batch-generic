@@ -1,14 +1,13 @@
 {
     "name": "@openaddresses/batch-generic",
     "type": "module",
-    "version": "14.0.3",
-    "description": "JSON Schema based ORM for Slonik",
-    "main": "generic.js",
+    "version": "15.0.1",
+    "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
+    "main": "dist/generic.js",
+    "types": "./generic.ts",
     "scripts": {
-        "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
-        "lint-doc": "documentation lint generic.js",
-        "lint": "eslint generic.js test/**.js lib/**.js",
-        "test": "tape test/**.test.js"
+        "lint": "eslint generic.ts lib/**.ts",
+        "build": "tsc --build"
     },
     "repository": {
         "type": "git",
@@ -21,20 +20,24 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "moment": "2.x.x",
-        "slonik": "32.x.x"
+        "drizzle-kit": "^0.20.10",
+        "drizzle-orm": "^0.29.3",
+        "moment": "2.x.x"
     },
     "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^6.0.0",
+        "@typescript-eslint/parser": "^6.0.0",
         "documentation": "^14.0.0",
-        "eslint": "^8.6.0",
-        "eslint-plugin-node": "^11.1.0",
+        "eslint": "^8.33.0",
         "tape": "^5.4.0"
     },
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
+        "@types/geojson": "^7946.0.13",
         "mkdirp": "^3.0.0",
-        "pg-structure": "^7.13.0",
+        "pg-structure": "^7.15.0",
+        "postgres": "^3.4.3",
         "wkx": "^0.5.0"
     }
 }
