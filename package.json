@@ -5,10 +5,8 @@
     "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
     "main": "generic.js",
     "scripts": {
-        "doc": "documentation build generic.js -f html -o docs && documentation lint generic.js",
-        "lint-doc": "documentation lint generic.js",
-        "lint": "eslint generic.ts test/**.ts lib/**.ts",
-        "test": "tape test/**.test.js"
+        "lint": "eslint generic.ts lib/**.ts",
+        "test": "test/test"
     },
     "repository": {
         "type": "git",

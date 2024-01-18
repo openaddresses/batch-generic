@@ -1,5 +1,6 @@
 import { sql, eq, asc, desc, is } from 'drizzle-orm';
 import { SQL, Table, TableConfig, Column, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
+/** @ignore */
 import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
