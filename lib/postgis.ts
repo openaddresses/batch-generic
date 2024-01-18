@@ -21,7 +21,7 @@ export const geometry = customType<{
         srid?: number;
     };
 }>({
-    dataType(config) {
+    dataType(config = {}) {
         return `GEOMETRY(${config.type || GeometryType.Geometry}, ${config.srid || 4326})`;
     },
     fromDriver(value: string): Geometry {
