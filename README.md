@@ -1,6 +1,6 @@
 <h1 align=center>Batch-Generic</h1>
 
-<p align=center>JSON Schema based ORM for Slonik</p>
+<p align=center>JSON Schema based ORM for Drizzle</p>
 
 ## Installation
 
