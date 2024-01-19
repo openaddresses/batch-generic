@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.5.0
+
+- Perform migration before schema dump
+
 ### v15.4.0
 
 - Custom migrationsFolder path through opts

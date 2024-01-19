@@ -99,13 +99,13 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             }
         } while (!pool);
 
-        if (opts.jsonschema && opts.jsonschema.dir) await pool.genJSONSchemas({
-            dir: opts.jsonschema.dir
-        });
-
         if (opts.migrationsFolder) {
             await migrate(pool, { migrationsFolder: opts.migrationsFolder });
         }
+
+        if (opts.jsonschema && opts.jsonschema.dir) await pool.genJSONSchemas({
+            dir: opts.jsonschema.dir
+        });
 
         return pool;
     }
