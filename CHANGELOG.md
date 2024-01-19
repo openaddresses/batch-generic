@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.4.0
+
+- Custom migrationsFolder path through opts
+
 ### v15.3.0
 
 - Handle empty table gracefully in stream mode
