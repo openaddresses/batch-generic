@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.6.0
+
+- Time type objects are now always strings, not unix epochs
+
 ### v15.5.0
 
 - Perform migration before schema dump

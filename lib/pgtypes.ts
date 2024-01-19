@@ -56,7 +56,8 @@ export default class PGTypes extends Map {
                 'timestamp'
             ],
             schema: {
-                type: 'integer'
+                type: 'string',
+                format: 'date'
             }
         }, {
             pgtypes: [
