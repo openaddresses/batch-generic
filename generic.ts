@@ -58,6 +58,12 @@ export class GenericEmitter<T extends Table<TableConfig<Column<ColumnBaseConfig<
             }).from(this.generic)
                 .where(this.query.where)
 
+            if (!count.length) {
+                this.emit('count', 0)
+                this.emit('end');
+                return;
+            }
+
             this.emit('count', count[0].count);
 
             let it = 0;

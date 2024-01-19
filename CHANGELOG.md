@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.3.0
+
+- Handle empty table gracefully in stream mode
+
 ### v15.2.0
 
 - Update Return Type
