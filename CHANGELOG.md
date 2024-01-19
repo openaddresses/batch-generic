@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.6.1
+
+- Date => date-time
+
 ### v15.6.0
 
 - Time type objects are now always strings, not unix epochs

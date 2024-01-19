@@ -57,7 +57,7 @@ export default class PGTypes extends Map {
             ],
             schema: {
                 type: 'string',
-                format: 'date'
+                format: 'date-time'
             }
         }, {
             pgtypes: [
