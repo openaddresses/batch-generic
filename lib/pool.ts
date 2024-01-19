@@ -70,6 +70,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
      */
     static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: string, schema: TSchema, opts: {
         retry?: number;
+        migrationsFolder?: string;
         jsonschema?: {
             dir: string | URL;
         };
@@ -102,7 +103,9 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             dir: opts.jsonschema.dir
         });
 
-        await migrate(pool, { migrationsFolder: 'migrations' });
+        if (opts.migrationsFolder) {
+            await migrate(pool, { migrationsFolder: opts.migrationsFolder });
+        }
 
         return pool;
     }
