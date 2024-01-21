@@ -58,6 +58,11 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         this.schema = schema;
     }
 
+    end() {
+        // @ts-expect-error
+        this.session.client.end();
+    }
+
     /**
      * Connect to a database and return a slonik connection
      *

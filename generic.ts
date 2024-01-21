@@ -4,7 +4,10 @@ import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
 import Err from '@openaddresses/batch-error';
-import { type InferSelectModel } from 'drizzle-orm';
+import {
+    type InferSelectModel,
+    type InferInsertModel
+} from 'drizzle-orm';
 import Pool from './lib/pool.js';
 
 export * from './lib/postgis.js'
@@ -153,7 +156,7 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.#primaryKey(true), id))
             .limit(1)
 
-        if (pgres.length !== 1) throw new Err(404, null, `${this.generic.name} Not Found`);
+        if (pgres.length !== 1) throw new Err(404, null, `Item Not Found`);
 
         return pgres[0] as InferSelectModel<T>;
     }
@@ -171,7 +174,7 @@ export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig
         await this.pool.delete(this.generic)
     }
 
-    async generate(values: object): Promise<InferSelectModel<T>> {
+    async generate(values: InferInsertModel<T>): Promise<InferSelectModel<T>> {
         const pgres = await this.pool.insert(this.generic)
             .values(values)
             .returning();

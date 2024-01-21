@@ -47,4 +47,6 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
 
         t.end();
     });
+
+    return connstr;
 }
