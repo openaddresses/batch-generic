@@ -10,6 +10,12 @@
 
 ## Version History
 
+### v15.7.0
+
+- :rocket: Input type is now properly typed
+- :rocket: Not found error is now generic
+- :white_check_mark: Write basic test scaffolding
+
 ### v15.6.1
 
 - Date => date-time
