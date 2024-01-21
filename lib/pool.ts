@@ -34,8 +34,13 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
 
     constructor(connstr: string, config: {
         schema: TSchema
+        ssl?: {
+            rejectUnauthorized?: boolean;
+        };
     }) {
-        const client = postgres(connstr);
+        const client = postgres(connstr, {
+            ssl: config.ssl
+        });
 
         let schema;
         if (config.schema) {
@@ -79,6 +84,9 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         jsonschema?: {
             dir: string | URL;
         };
+        ssl?: {
+            rejectUnauthorized?: boolean;
+        };
     } = {}): Promise<Pool<TSchema>> {
         if (!opts.retry) opts.retry = 5;
 
@@ -86,7 +94,10 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         let retry = opts.retry;
         do {
             try {
-                pool = new Pool(connstr, { schema });
+                pool = new Pool(connstr, {
+                    ssl: opts.ssl,
+                    schema
+                });
                 await pool.select(sql`NOW()`);
             } catch (err) {
                 console.error(err);

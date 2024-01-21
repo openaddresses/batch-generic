@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.8.0
+
+- :rocket: Setup Optional SSL Param for connection settings
+
 ### v15.7.0
 
 - :rocket: Input type is now properly typed
