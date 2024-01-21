@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.9.0
+
+- :bug: Set no-verify option in pgStructure as it uses node-pg
+
 ### v15.8.0
 
 - :rocket: Setup Optional SSL Param for connection settings

@@ -120,6 +120,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         }
 
         if (opts.jsonschema && opts.jsonschema.dir) await pool.genJSONSchemas({
+            ssl: opts.ssl,
             dir: opts.jsonschema.dir
         });
 
@@ -134,13 +135,22 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
      */
     async genJSONSchemas(opts: {
         dir: string | URL;
+        ssl?: {
+            rejectUnauthorized?: boolean;
+        };
     }) {
         const res = {
             tables: {},
             views: {}
         };
 
-        const db = await pgStructure(this.connstr);
+        const url = new URL(this.connstr);
+        if (opts.ssl && opts.ssl.rejectUnauthorized == false) {
+            url.searchParams.set('sslmode', 'no-verify')
+        }
+
+
+        const db = await pgStructure(String(url));
         const types = new PGTypes();
 
         for (const type of ['views', 'tables']) {
