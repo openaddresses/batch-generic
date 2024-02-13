@@ -7,6 +7,7 @@
     "types": "./generic.ts",
     "scripts": {
         "lint": "eslint generic.ts lib/**.ts",
+        "doc": "typedoc",
         "build": "tsc --build"
     },
     "repository": {
@@ -40,6 +41,7 @@
         "pg-structure": "^7.15.0",
         "postgres": "^3.4.3",
         "turbo": "^1.11.3",
+        "typedoc": "^0.25.8",
         "wkx": "^0.5.0"
     }
 }

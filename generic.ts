@@ -12,7 +12,7 @@ import Pool from './lib/pool.js';
 
 export * from './lib/postgis.js'
 
-export function Param(param) {
+export function Param<T>(param?: T): T | null {
     if (param === undefined) {
         return null;
     } else {
