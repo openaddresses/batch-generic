@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.10.2
+
+- :arrow_up: Update Core Deps
+
 ### v15.10.1
 
 - :rocket: more Types
