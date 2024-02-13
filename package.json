@@ -1,7 +1,7 @@
 {
     "name": "@openaddresses/batch-generic",
     "type": "module",
-    "version": "15.9.0",
+    "version": "15.10.0",
     "description": "JSON Schema/ORM Hybrid Helper for Drizzle-ORM",
     "main": "./dist/generic.js",
     "types": "./generic.ts",
