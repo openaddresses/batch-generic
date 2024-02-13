@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.10.1
+
+- :rocket: more Types
+
 ### v15.10.0
 
 - :rocket: Add TS `strict` mode
