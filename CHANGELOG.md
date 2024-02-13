@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.10.0
+
+- :rocket: Add TS `strict` mode
+
 ### v15.9.0
 
 - :bug: Set no-verify option in pgStructure as it uses node-pg
