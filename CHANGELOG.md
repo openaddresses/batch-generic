@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.11.0
+
+- :bug: Fix `query.order` in list API
+
 ### v15.10.2
 
 - :arrow_up: Update Core Deps
