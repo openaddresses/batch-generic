@@ -105,13 +105,13 @@ export default class Drizzle<T extends GenericTable> {
         this.generic = generic;
     }
 
-    #requiredPrimaryKey(): PgColumn {
-        const primaryKey = this.#primaryKey();
+    requiredPrimaryKey(): PgColumn {
+        const primaryKey = this.primaryKey();
         if (!primaryKey) throw new Err(500, null, `Cannot access ${this.generic.name} without primaryKey`);
         return primaryKey;
     }
 
-    #primaryKey(): PgColumn | null {
+    primaryKey(): PgColumn | null {
         let primaryKey;
         for (const key in this.generic) {
             if (this.generic[key].primary) primaryKey = this.generic[key];
@@ -120,7 +120,7 @@ export default class Drizzle<T extends GenericTable> {
         return primaryKey || null;
     }
 
-    #key(key: string): PgColumn {
+    key(key: string): PgColumn {
         if (this.generic[key]) return this.generic[key];
         throw new Err(500, null, `Cannot access ${this.generic.name}.${key} as it does not exist`);
     }
@@ -133,7 +133,7 @@ export default class Drizzle<T extends GenericTable> {
 
     async list(query: GenericListInput = {}): Promise<GenericList<InferSelectModel<T>>> {
         const order = query.order && query.order === 'desc' ? desc : asc;
-        const orderBy = order(query.sort ? this.#key(query.sort) : this.#requiredPrimaryKey());
+        const orderBy = order(query.sort ? this.key(query.sort) : this.requiredPrimaryKey());
 
         const pgres = await this.pool.select({
             count: sql<string>`count(*) OVER()`.as('count'),
@@ -159,7 +159,7 @@ export default class Drizzle<T extends GenericTable> {
     async from(id: unknown | SQL<unknown>): Promise<InferSelectModel<T>> {
         const pgres = await this.pool.select()
             .from(this.generic)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#requiredPrimaryKey(), id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
             .limit(1)
 
         if (pgres.length !== 1) throw new Err(404, null, `Item Not Found`);
@@ -170,7 +170,7 @@ export default class Drizzle<T extends GenericTable> {
     async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
         const pgres = await this.pool.update(this.generic)
             .set(values)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#requiredPrimaryKey(), id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
             .returning();
 
         return pgres[0] as InferSelectModel<T>;
@@ -190,7 +190,7 @@ export default class Drizzle<T extends GenericTable> {
 
     async delete(id: unknown | SQL<unknown>): Promise<void> {
         await this.pool.delete(this.generic)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.#requiredPrimaryKey(), id))
+            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
     }
 }
 

@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.12.0
+
+- :rocket: Expose key helper fns
+
 ### v15.11.1
 
 - :rocket: Simpler type defs
