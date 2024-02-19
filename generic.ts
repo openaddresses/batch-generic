@@ -37,7 +37,9 @@ export type GenericStreamInput = {
     where?: SQL<unknown>;
 }
 
-export class GenericEmitter<T extends Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>> extends EventEmitter {
+type GenericTable = Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>;
+
+export class GenericEmitter<T extends GenericTable> extends EventEmitter {
     pool: PostgresJsDatabase<any>;
     generic: PgTableWithColumns<any>;
     query: GenericStreamInput;
@@ -91,7 +93,7 @@ export class GenericEmitter<T extends Table<TableConfig<Column<ColumnBaseConfig<
     }
 }
 
-export default class Drizzle<T extends Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>> {
+export default class Drizzle<T extends GenericTable> {
     pool: PostgresJsDatabase<any>;
     generic: PgTableWithColumns<any>;
 

@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.11.1
+
+- :rocket: Simpler type defs
+
 ### v15.11.0
 
 - :bug: Fix `query.order` in list API
