@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v15.13.0
+
+- :tada: Add Order Enum
+
 ### v15.12.0
 
 - :rocket: Expose key helper fns
