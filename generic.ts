@@ -25,10 +25,15 @@ export interface GenericList<T> {
     items: Array<T>
 }
 
+export enum GenericListOrder {
+    ASC = 'asc',
+    DESC = 'desc'
+}
+
 export type GenericListInput = {
     limit?: number;
     page?: number;
-    order?: string;
+    order?: GenericListOrder;
     sort?: string;
     where?: SQL<unknown>;
 }
