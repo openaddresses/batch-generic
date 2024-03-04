@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v16.0.1
+
+- :bug: Remove structure writer
+
 ### v16.0.0
 
 - :tada: Remove JSON Schema output now that we use drizzle-typebox
