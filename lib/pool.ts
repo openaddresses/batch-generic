@@ -1,6 +1,3 @@
-import { pgStructure } from 'pg-structure/dist/main.js';
-import PGTypes from './pgtypes.js';
-import Schemas from './schema.js';
 import postgres from 'postgres';
 import { sql } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
@@ -13,15 +10,6 @@ import {
 
 export type PostgresJsDatabase<TSchema extends Record<string, unknown> = Record<string, never>> = PgDatabase<PostgresJsQueryResultHKT, TSchema>;
 
-export type DbStructure = {
-    tables: {
-        [k: string]: object;
-    };
-    views: {
-        [k: string]: object;
-    };
-}
-
 /**
  * @class
  * @param connstr       Postgres Connection String
@@ -30,7 +18,6 @@ export type DbStructure = {
 export default class Pool<TSchema extends Record<string, unknown> = Record<string, never>> extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
     connstr: string;
     schema: TSchema;
-    pgschema?: DbStructure;
 
     constructor(connstr: string, config: {
         schema: TSchema
@@ -75,15 +62,10 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
      * @param [opts]                   Options Object
      * @param [opts.retry=5]               Number of times to retry an initial connection
      * @param [opts.schema]
-     * @param [opts.jsonschema]               JSON Schema Options
-     * @param [opts.jsonschema.dir]               JSON Schema Directory
      */
     static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: string, schema: TSchema, opts: {
         retry?: number;
         migrationsFolder?: string;
-        jsonschema?: {
-            dir: string | URL;
-        };
         ssl?: {
             rejectUnauthorized?: boolean;
         };
@@ -119,56 +101,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             await migrate(pool, { migrationsFolder: opts.migrationsFolder });
         }
 
-        if (opts.jsonschema && opts.jsonschema.dir) await pool.genJSONSchemas({
-            ssl: opts.ssl,
-            dir: opts.jsonschema.dir
-        });
-
         return pool;
-    }
-
-    /**
-     * Parse the current database state into JSON Schemas per table
-     * Called automatically at the start of a postgres connection
-     *
-     * @param {Object} opts See Pool.connect() documentation on `opts.schemas`
-     */
-    async genJSONSchemas(opts: {
-        dir: string | URL;
-        ssl?: {
-            rejectUnauthorized?: boolean;
-        };
-    }) {
-        const res = {
-            tables: {},
-            views: {}
-        };
-
-        const url = new URL(this.connstr);
-        if (opts.ssl && opts.ssl.rejectUnauthorized == false) {
-            url.searchParams.set('sslmode', 'no-verify')
-        }
-
-
-        const db = await pgStructure(String(url));
-        const types = new PGTypes();
-
-        for (const type of ['views', 'tables']) {
-            for (const parsed of db.get('public')[type]) {
-                res[type][parsed.name] = types.container(parsed);
-                for (const col of parsed.columns) {
-                    res[type][parsed.name].properties[col.name] = types.column(col);
-                }
-
-                res[type][parsed.name].required = Object.keys(res[type][parsed.name].properties);
-            }
-        }
-
-        this.pgschema = res;
-
-        if (opts.dir) await Schemas.write(res, opts.dir);
-
-        return res;
     }
 }
 

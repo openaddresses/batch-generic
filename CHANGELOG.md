@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v16.0.0
+
+- :tada: Remove JSON Schema output now that we use drizzle-typebox
+
 ### v15.13.0
 
 - :tada: Add Order Enum

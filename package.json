@@ -39,7 +39,6 @@
         "@openaddresses/batch-error": "^2.1.2",
         "@turf/bbox": "^6.5.0",
         "mkdirp": "^3.0.0",
-        "pg-structure": "^7.15.0",
         "postgres": "^3.4.3",
         "wkx": "^0.5.0"
     }
