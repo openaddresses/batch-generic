@@ -10,9 +10,9 @@
 
 ## Version History
 
-### v16.0.1
+### v17.0.0
 
-- :bug: Remove structure writer
+- :arrow_up: Update to `drizzle-orm@0.30` which uses dates as strings for postgres.js
 
 ### v16.0.0
 

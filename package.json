@@ -22,7 +22,7 @@
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
         "drizzle-kit": "^0.20.10",
-        "drizzle-orm": "^0.29.3",
+        "drizzle-orm": "^0.30.0",
         "moment": "2.x.x"
     },
     "devDependencies": {
