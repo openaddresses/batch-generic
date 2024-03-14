@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v17.0.1
+
+- :arrow_up: Update Core Deps
+
 ### v17.0.0
 
 - :arrow_up: Update to `drizzle-orm@0.30` which uses dates as strings for postgres.js
