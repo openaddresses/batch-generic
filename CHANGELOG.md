@@ -10,6 +10,10 @@
 
 ## Version History
 
+$## v17.1.0
+
+- :rocket: Add generic `.count()` function
+
 ### v17.0.1
 
 - :arrow_up: Update Core Deps

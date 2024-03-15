@@ -38,6 +38,11 @@ export type GenericListInput = {
     where?: SQL<unknown>;
 }
 
+export type GenericCountInput = {
+    order?: GenericListOrder;
+    where?: SQL<unknown>;
+}
+
 export type GenericStreamInput = {
     where?: SQL<unknown>;
 }
@@ -134,6 +139,15 @@ export default class Drizzle<T extends GenericTable> {
         const generic = new GenericEmitter(this.pool, this.generic, query);
         generic.start();
         return generic;
+    }
+
+    async count(query: GenericCountInput = {}): Promise<number> {
+        const pgres = await this.pool.select({
+            count: sql<number>`count(*)`.as('count'),
+        }).from(this.generic)
+            .where(query.where)
+
+        return pgres[0].count;
     }
 
     async list(query: GenericListInput = {}): Promise<GenericList<InferSelectModel<T>>> {
