@@ -223,6 +223,7 @@ export default class Drizzle<T extends GenericTable> {
         } else {
             pgres = await this.pool.insert(this.generic)
                 .values(values)
+                .returning()
         }
 
         return pgres[0] as InferSelectModel<T>;

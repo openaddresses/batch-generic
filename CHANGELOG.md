@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v17.2.1
+
+- :bug: Fix bug where a normal insert wouldn't return a value
+
 ### v17.2.0
 
 - :rocket: Allow upsert behavior to be defined on `generate`
