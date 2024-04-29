@@ -10,7 +10,11 @@
 
 ## Version History
 
-$## v17.1.0
+### v17.2.0
+
+- :rocket: Allow upsert behavior to be defined on `generate`
+
+### v17.1.0
 
 - :rocket: Add generic `.count()` function
 

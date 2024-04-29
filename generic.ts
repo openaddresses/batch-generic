@@ -25,6 +25,11 @@ export interface GenericList<T> {
     items: Array<T>
 }
 
+export enum GenerateUpsert {
+    DO_NOTHING = 'DoNothing',
+    UPDATE = 'Update'
+}
+
 export enum GenericListOrder {
     ASC = 'asc',
     DESC = 'desc'
@@ -199,10 +204,26 @@ export default class Drizzle<T extends GenericTable> {
         await this.pool.delete(this.generic)
     }
 
-    async generate(values: InferInsertModel<T>): Promise<InferSelectModel<T>> {
-        const pgres = await this.pool.insert(this.generic)
-            .values(values)
-            .returning();
+    async generate(values: InferInsertModel<T>, opts?: {
+        upsert?: GenerateUpsert
+    }): Promise<InferSelectModel<T>> {
+        if (!opts) opts = {};
+
+        let pgres;
+        if (opts.upsert && opts.upsert === GenerateUpsert.DO_NOTHING) {
+            pgres = await this.pool.insert(this.generic)
+                .values(values)
+                .onConflictDoNothing()
+                .returning()
+        } else if (opts.upsert && opts.upsert === GenerateUpsert.UPDATE) {
+            pgres = await this.pool.insert(this.generic)
+                .values(values)
+                .onConflictDoUpdate({ target: this.requiredPrimaryKey(), set: values })
+                .returning()
+        } else {
+            pgres = await this.pool.insert(this.generic)
+                .values(values)
+        }
 
         return pgres[0] as InferSelectModel<T>;
     }
