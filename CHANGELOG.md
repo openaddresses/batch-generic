@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v18.0.0
+
+- :arrow_up: Update PeerDep to `drizzle-kit@21`
+
 ### v17.2.1
 
 - :bug: Fix bug where a normal insert wouldn't return a value

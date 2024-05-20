@@ -51,7 +51,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     }
 
     end() {
-        // @ts-expect-error
+        // @ts-expect-error No End defined in types
         this.session.client.end();
     }
 

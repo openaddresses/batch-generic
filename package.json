@@ -21,19 +21,18 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "drizzle-kit": "^0.20.10",
+        "drizzle-kit": "^0.21.0",
         "drizzle-orm": "^0.30.0",
         "moment": "2.x.x"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
         "@types/geojson": "^7946.0.13",
-        "@typescript-eslint/eslint-plugin": "^7.0.0",
-        "@typescript-eslint/parser": "^7.0.0",
         "eslint": "^8.33.0",
         "tape": "^5.4.0",
         "typedoc": "^0.25.8",
-        "typescript": "^5.3.3"
+        "typescript": "^5.3.3",
+        "typescript-eslint": "^7.9.0"
     },
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
