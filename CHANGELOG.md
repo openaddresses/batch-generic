@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v19.0.0
+
+- :arrow_up: Update PeerDep to `drizzle-kit@22`
+
 ### v18.0.0
 
 - :arrow_up: Update PeerDep to `drizzle-kit@21`
