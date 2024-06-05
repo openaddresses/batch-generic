@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v19.2.0
+
+- :rocket: Throw 404 error on `commit` that doesn't update any rows
+
 ### v19.1.0
 
 - :rocket: Add support for GeometryZ

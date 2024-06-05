@@ -197,6 +197,8 @@ export default class Drizzle<T extends GenericTable> {
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
             .returning();
 
+        if (!pgres.length) throw new Err(404, null, 'Item Not Found');
+
         return pgres[0] as InferSelectModel<T>;
     }
 
