@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v19.1.0
+
+- :rocket: Add support for GeometryZ
+
 ### v19.0.0
 
 - :arrow_up: Update PeerDep to `drizzle-kit@22`

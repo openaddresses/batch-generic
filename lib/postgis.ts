@@ -11,6 +11,13 @@ export enum GeometryType {
     MultiLineString = 'MULTILINESTRING',
     Polygon = 'POLYGON',
     MultiPolygon = 'MULTIPOLYGON'
+    GeometryZ = 'GEOMETRYZ',
+    PointZ = 'POINTZ',
+    MultiPointZ = 'MULTIPOINTZ',
+    LineStringZ = 'LINESTRINGZ',
+    MultiLineStringZ = 'MULTILINESTRINGZ',
+    PolygonZ = 'POLYGONZ',
+    MultiPolygonZ = 'MULTIPOLYGONZ'
 }
 
 export const geometry = customType<{
