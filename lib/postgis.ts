@@ -10,7 +10,7 @@ export enum GeometryType {
     LineString = 'LINESTRING',
     MultiLineString = 'MULTILINESTRING',
     Polygon = 'POLYGON',
-    MultiPolygon = 'MULTIPOLYGON'
+    MultiPolygon = 'MULTIPOLYGON',
     GeometryZ = 'GEOMETRYZ',
     PointZ = 'POINTZ',
     MultiPointZ = 'MULTIPOINTZ',
