@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v19.2.1
+
+- :bug: Count function was returning a string
+
 ### v19.2.0
 
 - :rocket: Throw 404 error on `commit` that doesn't update any rows

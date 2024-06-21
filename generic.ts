@@ -74,7 +74,7 @@ export class GenericEmitter<T extends GenericTable> extends EventEmitter {
     async start() {
         try {
             const count = await this.pool.select({
-                count: sql<number>`count(*) OVER()`.as('count')
+                count: sql<string>`count(*) OVER()`.as('count')
             }).from(this.generic)
                 .where(this.query.where)
 
@@ -84,7 +84,7 @@ export class GenericEmitter<T extends GenericTable> extends EventEmitter {
                 return;
             }
 
-            this.emit('count', count[0].count);
+            this.emit('count', parseInt(count[0].count));
 
             let it = 0;
             let pgres: any = [];
@@ -148,11 +148,11 @@ export default class Drizzle<T extends GenericTable> {
 
     async count(query: GenericCountInput = {}): Promise<number> {
         const pgres = await this.pool.select({
-            count: sql<number>`count(*)`.as('count'),
+            count: sql<string>`count(*)`.as('count'),
         }).from(this.generic)
             .where(query.where)
 
-        return pgres[0].count;
+        return parseInt(pgres[0].count);
     }
 
     async list(query: GenericListInput = {}): Promise<GenericList<InferSelectModel<T>>> {
