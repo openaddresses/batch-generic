@@ -6,7 +6,7 @@
     "main": "./dist/generic.js",
     "types": "./generic.ts",
     "scripts": {
-        "lint": "eslint generic.ts lib/**.ts",
+        "lint": "eslint generic.ts lib/ test/",
         "doc": "typedoc",
         "build": "tsc --build"
     },

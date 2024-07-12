@@ -1,12 +1,11 @@
 import test from 'tape';
-import postgres from 'postgres';
 import init from './init.js';
 import Modeler, { Pool } from '../generic.js';
 import * as pgschema from './schema.base.js';
 
 const connstr = init();
 
-test('Generic Generate', async (t) => {
+test('Generic Generate', async () => {
     const pool = await Pool.connect(connstr, pgschema);
 
     const ProfileModel = new Modeler(pool, pgschema.Profile);

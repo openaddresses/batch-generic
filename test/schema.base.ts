@@ -3,12 +3,8 @@ import { geometry, GeometryType } from '../generic.js';
 
 import {
     json,
-    bigint,
-    boolean,
-    integer,
     timestamp,
     pgTable,
-    serial,
     varchar
 } from 'drizzle-orm/pg-core';
 
