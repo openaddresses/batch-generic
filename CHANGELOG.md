@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v20.0.0
+
+- :arrow_up: Update Drizzle to latest version
+
 ### v19.2.1
 
 - :bug: Count function was returning a string
