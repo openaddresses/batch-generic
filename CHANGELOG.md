@@ -10,7 +10,7 @@
 
 ## Version History
 
-### v20.0.0
+### v21.0.0
 
 - :arrow_up: Update Drizzle to latest version
 
