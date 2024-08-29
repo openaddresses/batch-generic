@@ -26,7 +26,11 @@ test('Generic From - 404', async (t) => {
         await ProfileModel.from('test');
         t.fail();
     } catch (err) {
-        t.equals(err.message, 'Item Not Found');
+        if (err instanceof Error) {
+            t.equals(err.message, 'Item Not Found');
+        } else {
+            t.fail('Must be of Error type')
+        }
     }
 
     pool.end();
