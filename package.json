@@ -7,7 +7,7 @@
     "types": "./generic.ts",
     "scripts": {
         "lint": "eslint generic.ts lib/ test/",
-        "doc": "typedoc",
+        "doc": "typedoc generic.ts",
         "build": "tsc --build"
     },
     "repository": {
@@ -21,18 +21,18 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "drizzle-kit": "^0.23.0",
-        "drizzle-orm": "^0.32.0",
+        "drizzle-kit": "^0.24.0",
+        "drizzle-orm": "^0.33.0",
         "moment": "2.x.x"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
         "@types/geojson": "^7946.0.13",
-        "eslint": "^8.33.0",
+        "eslint": "^9.0.0",
         "tape": "^5.4.0",
         "typedoc": "^0.26.0",
         "typescript": "^5.3.3",
-        "typescript-eslint": "^7.9.0"
+        "typescript-eslint": "^8.0.0"
     },
     "dependencies": {
         "@openaddresses/batch-error": "^2.1.2",
