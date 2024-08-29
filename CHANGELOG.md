@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v21.0.1
+
+- :bug: Fix typing on sleep
+
 ### v21.0.0
 
 - :arrow_up: Update Drizzle to latest version
