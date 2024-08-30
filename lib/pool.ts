@@ -72,7 +72,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     } = {}): Promise<Pool<TSchema>> {
         if (!opts.retry) opts.retry = 5;
 
-        let pool;
+        let pool: Pool<TSchema> | undefined = undefined;
         let retry = opts.retry;
         do {
             try {
@@ -83,7 +83,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                 await pool.select(sql`NOW()`);
             } catch (err) {
                 console.error(err);
-                pool = false;
+                pool = undefined;
 
                 if (retry === 0) {
                     console.error('not ok - terminating due to lack of postgres connection');
@@ -95,7 +95,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                 console.error(`ok - retrying... (${5 - retry}/5)`);
                 await sleep(5000);
             }
-        } while (!pool);
+        } while (pool === undefined);
 
         if (opts.migrationsFolder) {
             await migrate(pool, { migrationsFolder: opts.migrationsFolder });
