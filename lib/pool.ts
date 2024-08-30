@@ -2,13 +2,16 @@ import postgres from 'postgres';
 import { sql } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
+import { PostgresJsSession } from 'drizzle-orm/postgres-js'
+import type {PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {
-  createTableRelationsHelpers,
-  extractTablesRelationalConfig
+    createTableRelationsHelpers,
+    extractTablesRelationalConfig
 } from "drizzle-orm/relations";
-
-export type PostgresJsDatabase<TSchema extends Record<string, unknown> = Record<string, never>> = PgDatabase<PostgresJsQueryResultHKT, TSchema>;
+import type {
+    RelationalSchemaConfig,
+    TablesRelationalConfig
+} from "drizzle-orm/relations";
 
 /**
  * @class
@@ -29,7 +32,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             ssl: config.ssl
         });
 
-        let schema;
+        let schema: RelationalSchemaConfig<TablesRelationalConfig> | undefined;
         if (config.schema) {
             const tablesConfig = extractTablesRelationalConfig(
                 config.schema,
@@ -47,7 +50,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         super(dialect, session, schema);
 
         this.connstr = connstr;
-        this.schema = schema;
+        this.schema = config.schema;
     }
 
     end() {
