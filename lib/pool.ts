@@ -80,7 +80,10 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                     ssl: opts.ssl,
                     schema
                 });
-                await pool.select(sql`NOW()`);
+
+                await pool.select({
+                    now: sql`NOW()`
+                });
             } catch (err) {
                 console.error(err);
                 pool = undefined;
