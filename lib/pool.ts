@@ -3,12 +3,13 @@ import { sql } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import { PostgresJsSession } from 'drizzle-orm/postgres-js'
-import type {PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
+import type { PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {
     createTableRelationsHelpers,
     extractTablesRelationalConfig
 } from "drizzle-orm/relations";
 import type {
+    ExtractTablesWithRelations,
     RelationalSchemaConfig,
     TablesRelationalConfig
 } from "drizzle-orm/relations";
@@ -47,7 +48,11 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
 
         const dialect = new PgDialect();
         const session = new PostgresJsSession(client, dialect, schema)
-        super(dialect, session, schema);
+        super(
+            dialect,
+            session,
+            schema as RelationalSchemaConfig<ExtractTablesWithRelations<TSchema>>
+        );
 
         this.connstr = connstr;
         this.schema = config.schema;
