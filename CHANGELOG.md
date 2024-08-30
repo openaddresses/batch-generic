@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v21.1.0
+
+- :rocket: Stricter TS config to keep upstream TSC happy
+
 ### v21.0.1
 
 - :bug: Fix typing on sleep
