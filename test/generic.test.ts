@@ -5,7 +5,7 @@ import * as pgschema from './schema.base.js';
 
 const connstr = init();
 
-test('Generic Generate', async () => {
+test('Generic Generate', async (t) => {
     const pool = await Pool.connect(connstr, pgschema);
 
     const ProfileModel = new Modeler(pool, pgschema.Profile);
@@ -15,6 +15,7 @@ test('Generic Generate', async () => {
     });
 
     pool.end();
+    t.end();
 });
 
 test('Generic From - 404', async (t) => {
@@ -34,4 +35,18 @@ test('Generic From - 404', async (t) => {
     }
 
     pool.end();
+    t.end();
+});
+
+test('Generic From', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.from('test-user');
+
+    t.equals(user.username, 'test-user')
+
+    pool.end();
+    t.end();
 });

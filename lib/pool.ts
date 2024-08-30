@@ -2,13 +2,17 @@ import postgres from 'postgres';
 import { sql } from 'drizzle-orm';
 import { PgDatabase, PgDialect } from 'drizzle-orm/pg-core';
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { PostgresJsSession, PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
+import { PostgresJsSession } from 'drizzle-orm/postgres-js'
+import type { PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js';
 import {
-  createTableRelationsHelpers,
-  extractTablesRelationalConfig
+    createTableRelationsHelpers,
+    extractTablesRelationalConfig
 } from "drizzle-orm/relations";
-
-export type PostgresJsDatabase<TSchema extends Record<string, unknown> = Record<string, never>> = PgDatabase<PostgresJsQueryResultHKT, TSchema>;
+import type {
+    ExtractTablesWithRelations,
+    RelationalSchemaConfig,
+    TablesRelationalConfig
+} from "drizzle-orm/relations";
 
 /**
  * @class
@@ -29,7 +33,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             ssl: config.ssl
         });
 
-        let schema;
+        let schema: RelationalSchemaConfig<TablesRelationalConfig> | undefined;
         if (config.schema) {
             const tablesConfig = extractTablesRelationalConfig(
                 config.schema,
@@ -44,10 +48,14 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
 
         const dialect = new PgDialect();
         const session = new PostgresJsSession(client, dialect, schema)
-        super(dialect, session, schema);
+        super(
+            dialect,
+            session,
+            schema as RelationalSchemaConfig<ExtractTablesWithRelations<TSchema>>
+        );
 
         this.connstr = connstr;
-        this.schema = schema;
+        this.schema = config.schema;
     }
 
     end() {
@@ -72,7 +80,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     } = {}): Promise<Pool<TSchema>> {
         if (!opts.retry) opts.retry = 5;
 
-        let pool;
+        let pool: Pool<TSchema> | undefined = undefined;
         let retry = opts.retry;
         do {
             try {
@@ -80,10 +88,13 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                     ssl: opts.ssl,
                     schema
                 });
-                await pool.select(sql`NOW()`);
+
+                await pool.select({
+                    now: sql`NOW()`
+                });
             } catch (err) {
                 console.error(err);
-                pool = false;
+                pool = undefined;
 
                 if (retry === 0) {
                     console.error('not ok - terminating due to lack of postgres connection');
@@ -95,7 +106,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                 console.error(`ok - retrying... (${5 - retry}/5)`);
                 await sleep(5000);
             }
-        } while (!pool);
+        } while (pool === undefined);
 
         if (opts.migrationsFolder) {
             await migrate(pool, { migrationsFolder: opts.migrationsFolder });
