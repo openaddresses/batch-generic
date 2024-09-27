@@ -159,14 +159,22 @@ export default class Drizzle<T extends GenericTable> {
         const order = query.order && query.order === 'desc' ? desc : asc;
         const orderBy = order(query.sort ? this.key(query.sort) : this.requiredPrimaryKey());
 
-        const pgres = await this.pool.select({
+        const limit = query.limit || 10;
+
+        const partial = this.pool.select({
             count: sql<string>`count(*) OVER()`.as('count'),
             generic: this.generic
         }).from(this.generic)
             .where(query.where)
             .orderBy(orderBy)
-            .limit(query.limit || 10)
-            .offset((query.page || 0) * (query.limit || 10))
+
+        if (limit !== Infinity) {
+            partial
+                .limit(query.limit || 10)
+                .offset((query.page || 0) * (query.limit || 10))
+        }
+
+        const pgres = await partial;
 
         if (pgres.length === 0) {
             return { total: 0, items: [] };

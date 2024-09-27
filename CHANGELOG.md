@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v21.2.0
+
+- :rocket: Add support for suppressing `limit()` in List with `Infinity` value
+
 ### v21.1.0
 
 - :rocket: Stricter TS config to keep upstream TSC happy
