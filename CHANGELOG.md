@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v22.0.0
+
+- :arrow_up: Update Drizzle to latest version
+
 ### v21.2.0
 
 - :rocket: Add support for suppressing `limit()` in List with `Infinity` value

@@ -21,8 +21,8 @@
     },
     "homepage": "https://github.com/openaddresses/batch-generic#readme",
     "peerDependencies": {
-        "drizzle-kit": "^0.24.0",
-        "drizzle-orm": "^0.33.0",
+        "drizzle-kit": "^0.25.0",
+        "drizzle-orm": "^0.34.0",
         "moment": "2.x.x"
     },
     "devDependencies": {
