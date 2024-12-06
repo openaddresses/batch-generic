@@ -52,7 +52,8 @@ export type GenericStreamInput = {
     where?: SQL<unknown>;
 }
 
-type GenericTable = Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>;
+type GenericTable = Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>
+    & { enableRLS: () => Omit<PgTableWithColumns<any>, "enableRLS">; };
 
 export class GenericEmitter<T extends GenericTable> extends EventEmitter {
     pool: PostgresJsDatabase<any>;
