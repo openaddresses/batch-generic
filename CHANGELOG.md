@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.1.0
+
+- :arrow_up: Update Drizzle to latest version
+
 ### v24.0.1
 
 - :bug: Add enableRLS type
