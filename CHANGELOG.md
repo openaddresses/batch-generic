@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.2.1
+
+- :rocket: Add PostgresOptions to use `connect()` fn
+
 ### v24.2.0
 
 - :rocket: Allow passing generic Drizzle Options

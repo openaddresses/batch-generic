@@ -76,6 +76,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: string, schema: TSchema, opts: {
         retry?: number;
         migrationsFolder?: string;
+        options?: PostgresJsSessionOptions,
         ssl?: {
             rejectUnauthorized?: boolean;
         };
