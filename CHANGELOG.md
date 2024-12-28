@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.2.0
+
+- :rocket: Allow passing generic Drizzle Options
+
 ### v24.1.0
 
 - :arrow_up: Update Drizzle to latest version
