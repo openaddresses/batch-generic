@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.3.0
+
+- :arrow_up: Update Drizzle-ORM
+
 ### v24.2.1
 
 - :rocket: Add PostgresOptions to use `connect()` fn
