@@ -50,3 +50,16 @@ test('Generic From', async (t) => {
     pool.end();
     t.end();
 });
+
+test('Generic Iter', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    for await (const user of ProfileModel.iter()) {
+        t.equals(user.username, 'test-user')
+    }
+
+    pool.end();
+    t.end();
+});

@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.4.0
+
+- :tada: Add Async Iterator Support
+
 ### v24.3.0
 
 - :arrow_up: Update Drizzle-ORM

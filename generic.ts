@@ -43,6 +43,12 @@ export type GenericListInput = {
     where?: SQL<unknown>;
 }
 
+export type GenericIterInput = {
+    pagesize?: number;
+    order?: GenericListOrder;
+    where?: SQL<unknown>;
+}
+
 export type GenericCountInput = {
     order?: GenericListOrder;
     where?: SQL<unknown>;
@@ -145,6 +151,27 @@ export default class Drizzle<T extends GenericTable> {
         const generic = new GenericEmitter(this.pool, this.generic, query);
         generic.start();
         return generic;
+    }
+
+    async *iter(query: GenericIterInput = {}): AsyncGenerator<InferSelectModel<T>> {
+        const pagesize = query.pagesize || 100;
+        let page = 0;
+
+        let pgres;
+        do {
+            pgres = await this.list({
+                page,
+                limit: pagesize,
+                order: query.order,
+                where: query.where
+            });
+
+            for (const row of pgres.items) {
+                yield row as InferSelectModel<T>;
+            }
+
+            page++;
+        } while (pgres.items.length);
     }
 
     async count(query: GenericCountInput = {}): Promise<number> {
