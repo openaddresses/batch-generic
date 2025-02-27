@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.5.0
+
+- :arrow_up: Update drizzle-kit
+
 ### v24.4.0
 
 - :tada: Add Async Iterator Support
