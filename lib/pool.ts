@@ -31,6 +31,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
         };
     }) {
         const client = postgres(connstr, {
+            onnotice: () => {},
             ssl: config.ssl
         });
 

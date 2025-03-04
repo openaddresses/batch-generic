@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.5.1
+
+- :rocket: Squelch Notice Messages
+
 ### v24.5.0
 
 - :arrow_up: Update drizzle-kit
