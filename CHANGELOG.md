@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.7.0
+
+- :arrow_up: Update drizzle-kit
+
 ### v24.6.0
 
 - :arrow_up: Update drizzle-kit
