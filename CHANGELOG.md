@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.10.0
+
+- :rocket: Throw 400 error on unqiue constraint conflict
+
 ### v24.9.1
 
 - :arrow_up: Update drizzle-kit
