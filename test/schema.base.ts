@@ -20,5 +20,7 @@ export const Profile = pgTable('profile', {
     callsign: varchar().notNull().default('Unknown Callsign'),
     location: geometry({ srid: 4326, type: GeometryType.Point })
 }, (t) => {
-    unq: unique().on(t.email)
+    return {
+        unq: unique().on(t.email)
+    }
 });
