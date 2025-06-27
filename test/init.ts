@@ -36,6 +36,7 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
             CREATE TABLE profile (
                 username TEXT PRIMARY KEY,
                 meta JSON NOT NULL DEFAULT '{}'::JSON,
+                email TEXT UNIQUE,
                 created TIMESTAMPTZ NOT NULL DEFAULT Now(),
                 updated TIMESTAMPTZ NOT NULL DEFAULT Now(),
                 callsign TEXT NOT NULL DEFAULT 'Unknown Callsign',

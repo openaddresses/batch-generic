@@ -248,20 +248,46 @@ export default class Drizzle<T extends GenericTable> {
         if (!opts) opts = {};
 
         let pgres;
-        if (opts.upsert && opts.upsert === GenerateUpsert.DO_NOTHING) {
-            pgres = await this.pool.insert(this.generic)
-                .values(values)
-                .onConflictDoNothing()
-                .returning()
-        } else if (opts.upsert && opts.upsert === GenerateUpsert.UPDATE) {
-            pgres = await this.pool.insert(this.generic)
-                .values(values)
-                .onConflictDoUpdate({ target: this.requiredPrimaryKey(), set: values })
-                .returning()
-        } else {
-            pgres = await this.pool.insert(this.generic)
-                .values(values)
-                .returning()
+
+        try {
+            if (opts.upsert && opts.upsert === GenerateUpsert.DO_NOTHING) {
+                pgres = await this.pool.insert(this.generic)
+                    .values(values)
+                    .onConflictDoNothing()
+                    .returning()
+            } else if (opts.upsert && opts.upsert === GenerateUpsert.UPDATE) {
+                pgres = await this.pool.insert(this.generic)
+                    .values(values)
+                    .onConflictDoUpdate({ target: this.requiredPrimaryKey(), set: values })
+                    .returning()
+            } else {
+                pgres = await this.pool.insert(this.generic)
+                    .values(values)
+                    .returning()
+            }
+        } catch (err) {
+            if (
+                err instanceof Error &&
+                typeof err.cause === 'object' &&
+                err.cause !== null &&
+                'code' in err.cause &&
+                'severity' in err.cause
+            ) {
+                const pgError = err.cause as {
+                    code: string;
+                    severity: string;
+                    detail: string;
+                    [key: string]: unknown;
+                };
+
+                if (pgError.code === '23505') {
+                    throw new Err(400, err, pgError.detail);
+                } else {
+                    throw err;
+                }
+            } else {
+                throw err;
+            }
         }
 
         return pgres[0] as InferSelectModel<T>;
