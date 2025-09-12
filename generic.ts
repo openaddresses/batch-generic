@@ -228,6 +228,15 @@ export default class Drizzle<T extends GenericTable> {
     }
 
     async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
+        const vs = Object.values(values);
+
+        if (
+            Object.keys(values).length === 0
+            || vs.every(value => value === undefined)
+        ) {
+            return await this.from(id);
+        }
+
         const pgres = await this.pool.update(this.generic)
             .set(values)
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))

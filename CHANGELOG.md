@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.11.0
+
+- :rocket: Update `commit()` to check for undefined objects and short-circuit if there is nothing to update
+
 ### v24.10.0
 
 - :rocket: Throw 400 error on unqiue constraint conflict
