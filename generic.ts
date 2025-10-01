@@ -174,6 +174,12 @@ export default class Drizzle<T extends GenericTable> {
         } while (pgres.items.length);
     }
 
+    /**
+     * Count features with an optional custom SQL clause
+     * @param {Object} query Query parameters
+     * @param {SQL} query.where Custom SQL clause to filter results
+     * @return {Number} Number of features matching the query
+     */
     async count(query: GenericCountInput = {}): Promise<number> {
         const pgres = await this.pool.select({
             count: sql<string>`count(*)`.as('count'),
@@ -183,6 +189,15 @@ export default class Drizzle<T extends GenericTable> {
         return parseInt(pgres[0].count);
     }
 
+    /**
+     * List features with pagination, sorting and filtering
+     * @param {Object} query Query parameters
+     * @param {Number} query.limit Number of items to return per page, defaults to 10
+     * @param {Number} query.page Page number to return, defaults to 0
+     * @param {String} query.order Order to return items in, either 'asc' or 'desc', defaults to 'asc'
+     * @param {String} query.sort Column to sort by, defaults to primary key
+     * @param {SQL} query.where Custom SQL clause to filter results
+     */
     async list(query: GenericListInput = {}): Promise<GenericList<InferSelectModel<T>>> {
         const order = query.order && query.order === 'desc' ? desc : asc;
         const orderBy = order(query.sort ? this.key(query.sort) : this.requiredPrimaryKey());
@@ -216,6 +231,11 @@ export default class Drizzle<T extends GenericTable> {
         }
     }
 
+    /**
+     * Fetch a single feature either by primary key or by a custom SQL clause
+     *
+     * @param {String|Number|SQL} id Primary key of the feature to fetch, or a custom SQL clause
+     */
     async from(id: unknown | SQL<unknown>): Promise<InferSelectModel<T>> {
         const pgres = await this.pool.select()
             .from(this.generic)
@@ -227,6 +247,12 @@ export default class Drizzle<T extends GenericTable> {
         return pgres[0] as InferSelectModel<T>;
     }
 
+    /**
+     * Commit changes to a feature either by primary key or by a custom SQL clause
+     *
+     * @param {String|Number|SQL} id Primary key of the feature to update, or a custom SQL clause
+     * @param {Object} values Key/Value pairs of the fields to update
+     */
     async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
         const vs = Object.values(values);
 
@@ -251,8 +277,17 @@ export default class Drizzle<T extends GenericTable> {
         await this.pool.delete(this.generic)
     }
 
+    /**
+     * Create a new feature
+     *
+     * @param {Object} values Key/Value pairs of the fields to create
+     * @param {Object} opts Options object
+     * @param {GenerateUpsert} opts.upsert If set, will perform an upsert operation instead of a create
+     * @param {String} opts.upsertTarget Column to target for the upsert operation, defaults to primary key
+     */
     async generate(values: InferInsertModel<T>, opts?: {
-        upsert?: GenerateUpsert
+        upsert?: GenerateUpsert,
+        upsertTarget?: PgColumn | Array<PgColumn>
     }): Promise<InferSelectModel<T>> {
         if (!opts) opts = {};
 
@@ -267,7 +302,10 @@ export default class Drizzle<T extends GenericTable> {
             } else if (opts.upsert && opts.upsert === GenerateUpsert.UPDATE) {
                 pgres = await this.pool.insert(this.generic)
                     .values(values)
-                    .onConflictDoUpdate({ target: this.requiredPrimaryKey(), set: values })
+                    .onConflictDoUpdate({
+                        target: opts.upsertTarget ? opts.upsertTarget : this.requiredPrimaryKey(),
+                        set: values
+                    })
                     .returning()
             } else {
                 pgres = await this.pool.insert(this.generic)
@@ -302,6 +340,11 @@ export default class Drizzle<T extends GenericTable> {
         return pgres[0] as InferSelectModel<T>;
     }
 
+    /**
+     *  Delete a feature either by primary key or by a custom SQL clause
+     *
+     *  @param {String|Number|SQL} id Primary key of the feature to delete, or a custom SQL clause
+     */
     async delete(id: unknown | SQL<unknown>): Promise<void> {
         await this.pool.delete(this.generic)
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))

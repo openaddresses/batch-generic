@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.12.0
+
+- :rocket: Add ability to set custom Targets when upserting
+
 ### v24.11.0
 
 - :rocket: Update `commit()` to check for undefined objects and short-circuit if there is nothing to update
