@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.14.0
+
+- :tada: Support returning in generate when submitting array
+
 ### v24.13.0
 
 - :tada: Add ability to UPSERT multiple values

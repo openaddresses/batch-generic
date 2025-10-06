@@ -1,4 +1,4 @@
-import { sql, eq, asc, desc, is } from 'drizzle-orm';
+import { sql, eq, asc, desc, is, getTableColumns } from 'drizzle-orm';
 import { SQL, Table, TableConfig, Column, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
 import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -57,6 +57,11 @@ export type GenericCountInput = {
 export type GenericStreamInput = {
     where?: SQL<unknown>;
 }
+
+type GenerateOptions = {
+    upsert?: GenerateUpsert,
+    upsertTarget?: PgColumn | Array<PgColumn>
+};
 
 type GenericTable = Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>
     & { enableRLS: () => Omit<PgTableWithColumns<any>, "enableRLS">; };
@@ -277,6 +282,16 @@ export default class Drizzle<T extends GenericTable> {
         await this.pool.delete(this.generic)
     }
 
+    async generate(
+        values: InferInsertModel<T>,
+        opts?: GenerateOptions
+    ): Promise<InferSelectModel<T>>;
+
+    async generate(
+        values: Array<InferInsertModel<T>>,
+        opts?: GenerateOptions
+    ): Promise<Array<InferSelectModel<T>>>;
+
     /**
      * Create a new feature
      *
@@ -287,11 +302,8 @@ export default class Drizzle<T extends GenericTable> {
      */
     async generate(
         values: InferInsertModel<T> | Array<InferInsertModel<T>>,
-        opts?: {
-            upsert?: GenerateUpsert,
-            upsertTarget?: PgColumn | Array<PgColumn>
-        }
-    ): Promise<InferSelectModel<T>> {
+        opts?: GenerateOptions
+    ): Promise<InferSelectModel<T> | Array<InferSelectModel<T>>> {
         if (!opts) opts = {};
 
         let pgres;
@@ -307,7 +319,7 @@ export default class Drizzle<T extends GenericTable> {
                     .values(values)
                     .onConflictDoUpdate({
                         target: opts.upsertTarget ? opts.upsertTarget : this.requiredPrimaryKey(),
-                        set: values
+                        set: conflictUpdateAll(this.generic)
                     })
                     .returning()
             } else {
@@ -340,7 +352,11 @@ export default class Drizzle<T extends GenericTable> {
             }
         }
 
-        return pgres[0] as InferSelectModel<T>;
+        if (Array.isArray(values)) {
+            return pgres as Array<InferSelectModel<T>>;
+        } else {
+            return pgres[0] as InferSelectModel<T>;
+        }
     }
 
     /**
@@ -352,6 +368,22 @@ export default class Drizzle<T extends GenericTable> {
         await this.pool.delete(this.generic)
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
     }
+}
+
+export function conflictUpdateAll<
+  T extends Table,
+  E extends (keyof T['$inferInsert'])[],
+>(table: T) {
+  const columns = getTableColumns(table)
+  const updateColumns = Object.entries(columns)
+
+  return updateColumns.reduce(
+    (acc, [colName, table]) => ({
+      ...acc,
+      [colName]: sql.raw(`excluded.${table.name}`),
+    }),
+    {},
+  ) as Omit<Record<keyof typeof table.$inferInsert, SQL>, E[number]>
 }
 
 export {
