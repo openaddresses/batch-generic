@@ -285,10 +285,13 @@ export default class Drizzle<T extends GenericTable> {
      * @param {GenerateUpsert} opts.upsert If set, will perform an upsert operation instead of a create
      * @param {String} opts.upsertTarget Column to target for the upsert operation, defaults to primary key
      */
-    async generate(values: InferInsertModel<T>, opts?: {
-        upsert?: GenerateUpsert,
-        upsertTarget?: PgColumn | Array<PgColumn>
-    }): Promise<InferSelectModel<T>> {
+    async generate(
+        values: InferInsertModel<T> | Array<InferInsertModel<T>>,
+        opts?: {
+            upsert?: GenerateUpsert,
+            upsertTarget?: PgColumn | Array<PgColumn>
+        }
+    ): Promise<InferSelectModel<T>> {
         if (!opts) opts = {};
 
         let pgres;

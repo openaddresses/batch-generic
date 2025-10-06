@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.13.0
+
+- :tada: Add ability to UPSERT multiple values
+
 ### v24.12.0
 
 - :rocket: Add ability to set custom Targets when upserting
