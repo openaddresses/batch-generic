@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.15.0
+
+- :rocket: Update Drizzle to latest version
+
 ### v24.14.0
 
 - :tada: Support returning in generate when submitting array
