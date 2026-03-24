@@ -10,7 +10,7 @@
 
 ## Version History
 
-### v24.16.1
+### v24.17.0
 
 - :rocket: Update GH Release Action
 
