@@ -64,6 +64,100 @@ test('Generic Iter', async (t) => {
     t.end();
 });
 
+test('JSON Generate - insert as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.generate({
+        username: 'json-test-user',
+        meta: { test: true }
+    });
+
+    t.deepEqual(user.meta, { test: true }, 'inserted json should be returned as an object');
+    t.equals(typeof user.meta, 'object', 'inserted json must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
+test('JSON Commit - update as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.commit('json-test-user', {
+        meta: { test: false }
+    });
+
+    t.deepEqual(user.meta, { test: false }, 'updated json should be returned as an object');
+    t.equals(typeof user.meta, 'object', 'updated json must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
+test('JSON From - read back as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.from('json-test-user');
+
+    t.deepEqual(user.meta, { test: false }, 'read-back json should be an object');
+    t.equals(typeof user.meta, 'object', 'read-back json must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
+test('JSONB Generate - insert as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.generate({
+        username: 'jsonb-test-user',
+        config: { key: 'hello', value: 42 }
+    });
+
+    t.deepEqual(user.config, { key: 'hello', value: 42 }, 'inserted jsonb should be returned as an object');
+    t.equals(typeof user.config, 'object', 'inserted jsonb must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
+test('JSONB Commit - update as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.commit('jsonb-test-user', {
+        config: { key: 'updated', value: { nested: true } }
+    });
+
+    t.deepEqual(user.config, { key: 'updated', value: { nested: true } }, 'updated jsonb should be returned as an object');
+    t.equals(typeof user.config, 'object', 'updated jsonb must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
+test('JSONB From - read back as object', async (t) => {
+    const pool = await Pool.connect(connstr, pgschema);
+
+    const ProfileModel = new Modeler(pool, pgschema.Profile);
+
+    const user = await ProfileModel.from('jsonb-test-user');
+
+    t.deepEqual(user.config, { key: 'updated', value: { nested: true } }, 'read-back jsonb should be an object');
+    t.equals(typeof user.config, 'object', 'read-back jsonb must be an object, not a string');
+
+    pool.end();
+    t.end();
+});
+
 test('Generic Generate - Unique Insert Error', async (t) => {
     const pool = await Pool.connect(connstr, pgschema);
 

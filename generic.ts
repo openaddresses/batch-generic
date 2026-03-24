@@ -11,6 +11,7 @@ import {
 import Pool from './lib/pool.js';
 
 export * from './lib/postgis.js'
+export * from './lib/jsonb.js'
 
 export function Param<T>(param?: T): T | null {
     if (param === undefined) {
