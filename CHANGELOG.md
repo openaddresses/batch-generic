@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.16.1
+
+- :rocket: Update GH Release Action
+
 ### v24.16.0
 
 - :rocket: Add custom `jsonb` type to ensure objects are properly serialized when using drizzle-orm with postgres.js
