@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.18.0
+
+- :rocket: Remove `moment` and `tape` use in favor of native handling
+
 ### v24.17.0
 
 - :rocket: Update GH Release Action

@@ -84,7 +84,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     } = {}): Promise<Pool<TSchema>> {
         if (!opts.retry) opts.retry = 5;
 
-        let pool: Pool<TSchema> | undefined = undefined;
+        let pool: Pool<TSchema> | undefined;
         let retry = opts.retry;
         do {
             try {

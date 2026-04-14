@@ -1,27 +1,23 @@
 {
-    "ts-node": {
-        "esm": true
-    },
     "compilerOptions": {
         "strict": true,
         "strictNullChecks": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
+        "declaration": true,
         "module": "es2022",
+        "esModuleInterop": true,
         "target": "es2022",
-        "moduleResolution": "node",
+        "lib": ["es2022", "dom"],
+        "skipLibCheck": true,
+        "noImplicitAny": true,
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "verbatimModuleSyntax": true,
         "sourceMap": true,
-        "outDir": "dist",
-        "baseUrl": ".",
-        "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        }
+        "outDir": "dist"
     },
-    "exclude": [],
     "include": [
         "generic.ts",
+        "test/**/*",
         "lib/*.ts"
     ]
 }

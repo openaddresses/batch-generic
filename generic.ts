@@ -1,6 +1,7 @@
 import { sql, eq, asc, desc, is, getTableColumns } from 'drizzle-orm';
-import { SQL, Table, TableConfig, Column, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
-import { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
+import { SQL, Table, Column }  from 'drizzle-orm';
+import type { TableConfig, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
+import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
 import Err from '@openaddresses/batch-error';

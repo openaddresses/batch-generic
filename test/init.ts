@@ -1,8 +1,8 @@
 import postgres from 'postgres';
-import test from 'tape';
+import { test } from 'node:test';
 
 export default function(connstr = process.env.POSTGRES || 'postgres://postgres@localhost:5432/generic_test') {
-    test('Drop Database', async (t) => {
+    test('Drop Database', async () => {
         const client = postgres(connstr)
 
         const pgres = await client`
@@ -21,11 +21,9 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
         }
 
         client.end();
-
-        t.end();
     });
 
-    test('Init Database', async (t) => {
+    test('Init Database', async () => {
         const pg = postgres('postgres://postgres@localhost:5432/generic_test');
 
         await pg`
@@ -46,8 +44,6 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
         `;
 
         pg.end();
-
-        t.end();
     });
 
     return connstr;

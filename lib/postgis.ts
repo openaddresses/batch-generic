@@ -1,7 +1,7 @@
 import wkx from 'wkx';
 import bbox from '@turf/bbox';
 import { customType } from 'drizzle-orm/pg-core';
-import { Geometry } from 'geojson';
+import type { Geometry } from 'geojson';
 
 export enum GeometryType {
     Geometry = 'GEOMETRY',
