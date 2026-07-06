@@ -28,3 +28,7 @@ export const Profile = pgTable('profile', {
         unq: unique().on(t.email)
     }
 });
+
+export const NoPk = pgTable('no_pk', {
+    name: varchar()
+});

@@ -3,7 +3,7 @@ name: Test
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types:
       - opened
@@ -15,6 +15,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: generic_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,3 +52,15 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Test w/ Coverage
+        run: npm run coverage
+        env:
+          POSTGRES: postgres://postgres@localhost:5432/generic_test
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false

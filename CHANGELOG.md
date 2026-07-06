@@ -10,6 +10,14 @@
 
 ## Version History
 
+### v24.19.0
+
+- :tada: Add support for a `{ write, read }` pair of connection strings in `Pool.connect`/`new Pool` with round-robin load balancing of Modeler read queries across readers
+- :bug: `Pool.connect` connection test now actually executes a query - previously an un-awaited query builder meant connection failures & retries were never detected
+- :bug: `test/init.ts` now respects the `POSTGRES` env var when creating the database schema
+- :white_check_mark: Add comprehensive test coverage of the Modeler, Pool, PostGIS & JSONB surface
+- :rocket: Report coverage to Codecov via GitHub Actions & run the test suite in CI against a PostGIS service
+
 ### v24.18.0
 
 - :rocket: Remove `moment` and `tape` use in favor of native handling

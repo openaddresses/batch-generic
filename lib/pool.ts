@@ -15,22 +15,38 @@ import type {
 } from "drizzle-orm/relations";
 
 /**
+ * A Postgres Connection String or a Write/Read pair of connection strings
+ * where read queries are load balanced round-robin across the read URLs
+ */
+export type PoolConnStr = string | {
+    write: string;
+    read: string | Array<string>;
+};
+
+export type PoolConfig<TSchema extends Record<string, unknown>> = {
+    schema: TSchema
+    options?: PostgresJsSessionOptions,
+    ssl?: {
+        rejectUnauthorized?: boolean;
+    };
+};
+
+/**
  * @class
- * @param connstr       Postgres Connection String
+ * @param connstr       Postgres Connection String or { write, read } pair
  * @param schema        DrizzleORM Schema
  */
 export default class Pool<TSchema extends Record<string, unknown> = Record<string, never>> extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
     connstr: string;
     schema: TSchema;
+    readers: Array<Pool<TSchema>>;
 
-    constructor(connstr: string, config: {
-        schema: TSchema
-        options?: PostgresJsSessionOptions,
-        ssl?: {
-            rejectUnauthorized?: boolean;
-        };
-    }) {
-        const client = postgres(connstr, {
+    private readIndex: number;
+
+    constructor(connstr: PoolConnStr, config: PoolConfig<TSchema>) {
+        const writestr = typeof connstr === 'string' ? connstr : connstr.write;
+
+        const client = postgres(writestr, {
             onnotice: () => {},
             ssl: config.ssl
         });
@@ -57,24 +73,50 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             schema as RelationalSchemaConfig<ExtractTablesWithRelations<TSchema>>
         );
 
-        this.connstr = connstr;
+        this.connstr = writestr;
         this.schema = config.schema;
+        this.readIndex = 0;
+        this.readers = [];
+
+        if (typeof connstr !== 'string') {
+            const readstrs = Array.isArray(connstr.read) ? connstr.read : [connstr.read];
+            this.readers = readstrs.map((readstr) => {
+                return new Pool<TSchema>(readstr, config);
+            });
+        }
+    }
+
+    /**
+     * Return a Pool to run a read query against - if read connection strings were
+     * provided, queries are load balanced round-robin across the readers,
+     * otherwise the write pool is returned
+     */
+    get read(): Pool<TSchema> {
+        if (!this.readers.length) return this;
+
+        const reader = this.readers[this.readIndex];
+        this.readIndex = (this.readIndex + 1) % this.readers.length;
+        return reader;
     }
 
     end() {
         // @ts-expect-error No End defined in types
         this.session.client.end();
+
+        for (const reader of this.readers) {
+            reader.end();
+        }
     }
 
     /**
-     * Connect to a database and return a slonik connection
+     * Connect to a database and return a Pool connection
      *
-     * @param connstr                 Postgres Connection String
+     * @param connstr                 Postgres Connection String or { write, read } pair
      * @param [opts]                   Options Object
      * @param [opts.retry=5]               Number of times to retry an initial connection
      * @param [opts.schema]
      */
-    static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: string, schema: TSchema, opts: {
+    static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: PoolConnStr, schema: TSchema, opts: {
         retry?: number;
         migrationsFolder?: string;
         options?: PostgresJsSessionOptions,
@@ -93,11 +135,22 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
                     schema
                 });
 
-                await pool.select({
-                    now: sql`NOW()`
-                });
+                await pool.execute(sql`SELECT NOW()`);
+
+                for (const reader of pool.readers) {
+                    await reader.execute(sql`SELECT NOW()`);
+                }
             } catch (err) {
                 console.error(err);
+
+                if (pool) {
+                    try {
+                        pool.end();
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
                 pool = undefined;
 
                 if (retry === 0) {

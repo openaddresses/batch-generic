@@ -13,6 +13,7 @@ import Pool from './lib/pool.js';
 
 export * from './lib/postgis.js'
 export * from './lib/jsonb.js'
+export type { PoolConnStr, PoolConfig } from './lib/pool.js'
 
 export function Param<T>(param?: T): T | null {
     if (param === undefined) {
@@ -134,6 +135,16 @@ export default class Drizzle<T extends GenericTable> {
         this.generic = generic;
     }
 
+    /**
+     * Pool to run read-only queries against - if the Pool was created with
+     * dedicated read connection strings, reads are load balanced across them,
+     * otherwise the write pool is used
+     */
+    get readPool(): PostgresJsDatabase<any> {
+        if (this.pool instanceof Pool) return this.pool.read;
+        return this.pool;
+    }
+
     requiredPrimaryKey(): PgColumn {
         const primaryKey = this.primaryKey();
         if (!primaryKey) throw new Err(500, null, `Cannot access ${this.generic.name} without primaryKey`);
@@ -155,7 +166,7 @@ export default class Drizzle<T extends GenericTable> {
     }
 
     stream(query: GenericStreamInput = {}): GenericEmitter<T> {
-        const generic = new GenericEmitter(this.pool, this.generic, query);
+        const generic = new GenericEmitter(this.readPool, this.generic, query);
         generic.start();
         return generic;
     }
@@ -188,7 +199,7 @@ export default class Drizzle<T extends GenericTable> {
      * @return {Number} Number of features matching the query
      */
     async count(query: GenericCountInput = {}): Promise<number> {
-        const pgres = await this.pool.select({
+        const pgres = await this.readPool.select({
             count: sql<string>`count(*)`.as('count'),
         }).from(this.generic)
             .where(query.where)
@@ -211,7 +222,7 @@ export default class Drizzle<T extends GenericTable> {
 
         const limit = query.limit || 10;
 
-        const partial = this.pool.select({
+        const partial = this.readPool.select({
             count: sql<string>`count(*) OVER()`.as('count'),
             generic: this.generic
         }).from(this.generic)
@@ -244,7 +255,7 @@ export default class Drizzle<T extends GenericTable> {
      * @param {String|Number|SQL} id Primary key of the feature to fetch, or a custom SQL clause
      */
     async from(id: unknown | SQL<unknown>): Promise<InferSelectModel<T>> {
-        const pgres = await this.pool.select()
+        const pgres = await this.readPool.select()
             .from(this.generic)
             .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
             .limit(1)

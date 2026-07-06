@@ -24,7 +24,7 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
     });
 
     test('Init Database', async () => {
-        const pg = postgres('postgres://postgres@localhost:5432/generic_test');
+        const pg = postgres(connstr);
 
         await pg`
             CREATE EXTENSION IF NOT EXISTS POSTGIS;
@@ -40,6 +40,12 @@ export default function(connstr = process.env.POSTGRES || 'postgres://postgres@l
                 updated TIMESTAMPTZ NOT NULL DEFAULT Now(),
                 callsign TEXT NOT NULL DEFAULT 'Unknown Callsign',
                 location GEOMETRY(Point, 4326)
+            );
+        `;
+
+        await pg`
+            CREATE TABLE no_pk (
+                name TEXT
             );
         `;
 
