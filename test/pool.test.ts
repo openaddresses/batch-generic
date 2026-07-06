@@ -92,9 +92,9 @@ test('Pool - Modeler routes reads through readers & writes through writer', asyn
     assert.strictEqual(list.total, 1);
 
     const emitter = ProfileModel.stream();
-    const rows: Array<unknown> = [];
+    const rows: Array<typeof pgschema.Profile.$inferSelect> = [];
     await new Promise<void>((resolve, reject) => {
-        emitter.on('data', (row: unknown) => { rows.push(row); });
+        emitter.on('data', (row) => { rows.push(row); });
         emitter.on('error', reject);
         emitter.on('end', resolve);
     });

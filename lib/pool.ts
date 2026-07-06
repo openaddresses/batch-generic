@@ -23,7 +23,14 @@ export type PoolConnStr = string | {
     read: string | Array<string>;
 };
 
-export type PoolConfig<TSchema extends Record<string, unknown>> = {
+/**
+ * The shape a DrizzleORM database schema must satisfy - DrizzleORM itself
+ * constrains schemas to `Record<string, unknown>` so this alias is the single
+ * place that shape is written down
+ */
+export type GenericSchema = Record<string, unknown>;
+
+export type PoolConfig<TSchema extends GenericSchema> = {
     schema: TSchema
     options?: PostgresJsSessionOptions,
     ssl?: {
@@ -36,11 +43,12 @@ export type PoolConfig<TSchema extends Record<string, unknown>> = {
  * @param connstr       Postgres Connection String or { write, read } pair
  * @param schema        DrizzleORM Schema
  */
-export default class Pool<TSchema extends Record<string, unknown> = Record<string, never>> extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
+export default class Pool<TSchema extends GenericSchema = Record<string, never>> extends PgDatabase<PostgresJsQueryResultHKT, TSchema> {
     connstr: string;
     schema: TSchema;
     readers: Array<Pool<TSchema>>;
 
+    private client: postgres.Sql;
     private readIndex: number;
 
     constructor(connstr: PoolConnStr, config: PoolConfig<TSchema>) {
@@ -73,6 +81,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
             schema as RelationalSchemaConfig<ExtractTablesWithRelations<TSchema>>
         );
 
+        this.client = client;
         this.connstr = writestr;
         this.schema = config.schema;
         this.readIndex = 0;
@@ -100,8 +109,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
     }
 
     end() {
-        // @ts-expect-error No End defined in types
-        this.session.client.end();
+        this.client.end();
 
         for (const reader of this.readers) {
             reader.end();
@@ -116,7 +124,7 @@ export default class Pool<TSchema extends Record<string, unknown> = Record<strin
      * @param [opts.retry=5]               Number of times to retry an initial connection
      * @param [opts.schema]
      */
-    static async connect<TSchema extends Record<string, unknown> = Record<string, never>>(connstr: PoolConnStr, schema: TSchema, opts: {
+    static async connect<TSchema extends GenericSchema = Record<string, never>>(connstr: PoolConnStr, schema: TSchema, opts: {
         retry?: number;
         migrationsFolder?: string;
         options?: PostgresJsSessionOptions,

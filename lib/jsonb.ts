@@ -1,15 +1,21 @@
-import type { ColumnBuilderBaseConfig } from 'drizzle-orm/column-builder';
+import type { ColumnBuilderBaseConfig, ColumnBuilderRuntimeConfig, MakeColumnConfig } from 'drizzle-orm/column-builder';
 import type { ColumnBaseConfig } from 'drizzle-orm/column';
 import { entityKind } from 'drizzle-orm/entity';
 import type { AnyPgTable } from 'drizzle-orm/pg-core/table';
 import { PgColumn, PgColumnBuilder } from 'drizzle-orm/pg-core/columns/common';
 
+/**
+ * Any value that can be round-tripped through JSON - the default data type
+ * of a jsonb column before it is narrowed with `.$type<T>()`
+ */
+export type Json = string | number | boolean | null | { [key: string]: Json } | Array<Json>;
+
 export type PgJsonbBuilderInitial<TName extends string> = PgJsonbBuilder<{
     name: TName;
     dataType: 'json';
     columnType: 'PgJsonb';
-    data: unknown;
-    driverParam: unknown;
+    data: Json;
+    driverParam: Json;
     enumValues: undefined;
 }>;
 
@@ -20,16 +26,19 @@ export class PgJsonbBuilder<T extends ColumnBuilderBaseConfig<'json', 'PgJsonb'>
         super(name, 'json', 'PgJsonb');
     }
 
-    build(table: AnyPgTable<any>): PgJsonb<any> {
-        return new PgJsonb(table, this.config as any);
+    build<TTableName extends string>(table: AnyPgTable<{ name: TTableName }>): PgJsonb<MakeColumnConfig<T, TTableName>> {
+        return new PgJsonb<MakeColumnConfig<T, TTableName>>(
+            table,
+            this.config as ColumnBuilderRuntimeConfig<MakeColumnConfig<T, TTableName>['data']>
+        );
     }
 }
 
 export class PgJsonb<T extends ColumnBaseConfig<'json', 'PgJsonb'>> extends PgColumn<T> {
     static readonly [entityKind]: string = 'PgJsonb';
 
-    constructor(table: AnyPgTable<any>, config: PgJsonbBuilder<any>['config']) {
-        super(table as any, config);
+    constructor(table: AnyPgTable<{ name: T['tableName'] }>, config: PgJsonbBuilder<T>['config']) {
+        super(table, config);
     }
 
     getSQLType(): string {
@@ -56,5 +65,5 @@ export class PgJsonb<T extends ColumnBaseConfig<'json', 'PgJsonb'>> extends PgCo
 export function jsonb(): PgJsonbBuilderInitial<''>;
 export function jsonb<TName extends string>(name: TName): PgJsonbBuilderInitial<TName>;
 export function jsonb(name?: string): PgJsonbBuilderInitial<string> {
-    return new PgJsonbBuilder((name ?? '') as string);
+    return new PgJsonbBuilder(name ?? '');
 }

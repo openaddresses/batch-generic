@@ -1,19 +1,22 @@
-import { sql, eq, asc, desc, is, getTableColumns } from 'drizzle-orm';
-import { SQL, Table, Column }  from 'drizzle-orm';
-import type { TableConfig, ColumnBaseConfig, ColumnDataType } from 'drizzle-orm';
-import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
+import { sql, eq, asc, desc, is, getTableColumns, getTableName } from 'drizzle-orm';
+import { SQL } from 'drizzle-orm';
+import type { InferSelectModel } from 'drizzle-orm';
+import type {
+    PgColumn,
+    PgTable,
+    PgInsertValue,
+    PgUpdateSetSource,
+    TableConfig
+} from 'drizzle-orm/pg-core';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { EventEmitter } from 'events';
 import Err from '@openaddresses/batch-error';
-import {
-    type InferSelectModel,
-    type InferInsertModel
-} from 'drizzle-orm';
 import Pool from './lib/pool.js';
+import type { GenericSchema } from './lib/pool.js';
 
 export * from './lib/postgis.js'
 export * from './lib/jsonb.js'
-export type { PoolConnStr, PoolConfig } from './lib/pool.js'
+export type { PoolConnStr, PoolConfig, GenericSchema } from './lib/pool.js'
 
 export function Param<T>(param?: T): T | null {
     if (param === undefined) {
@@ -38,27 +41,31 @@ export enum GenericListOrder {
     DESC = 'desc'
 }
 
+export type GenericTable = PgTable<TableConfig>;
+
+export type GenericID = string | number | SQL;
+
 export type GenericListInput = {
     limit?: number;
     page?: number;
     order?: GenericListOrder;
     sort?: string;
-    where?: SQL<unknown>;
+    where?: SQL;
 }
 
 export type GenericIterInput = {
     pagesize?: number;
     order?: GenericListOrder;
-    where?: SQL<unknown>;
+    where?: SQL;
 }
 
 export type GenericCountInput = {
     order?: GenericListOrder;
-    where?: SQL<unknown>;
+    where?: SQL;
 }
 
 export type GenericStreamInput = {
-    where?: SQL<unknown>;
+    where?: SQL;
 }
 
 type GenerateOptions = {
@@ -66,16 +73,23 @@ type GenerateOptions = {
     upsertTarget?: PgColumn | Array<PgColumn>
 };
 
-type GenericTable = Table<TableConfig<Column<ColumnBaseConfig<ColumnDataType, string>, object, object>>>
-    & { enableRLS: () => Omit<PgTableWithColumns<any>, "enableRLS">; };
+export type GenericEmitterEvents<T extends GenericTable> = {
+    count: [count: number];
+    data: [row: InferSelectModel<T>];
+    end: [];
+    error: [err: Error];
+};
 
-export class GenericEmitter<T extends GenericTable> extends EventEmitter {
-    pool: PostgresJsDatabase<any>;
-    generic: PgTableWithColumns<any>;
+export class GenericEmitter<
+    T extends GenericTable,
+    TSchema extends GenericSchema = GenericSchema
+> extends EventEmitter<GenericEmitterEvents<T>> {
+    pool: PostgresJsDatabase<TSchema>;
+    generic: T;
     query: GenericStreamInput;
 
     constructor(
-        pool: PostgresJsDatabase<any>,
+        pool: PostgresJsDatabase<TSchema>,
         generic: T,
         query: GenericStreamInput
     ) {
@@ -86,11 +100,20 @@ export class GenericEmitter<T extends GenericTable> extends EventEmitter {
         this.query = query;
     }
 
+    /**
+     * The generic table widened to its base type - DrizzleORM's `from()`
+     * guards against data-modifying subqueries with a conditional type that
+     * cannot resolve against an unresolved type parameter
+     */
+    private get table(): GenericTable {
+        return this.generic;
+    }
+
     async start() {
         try {
             const count = await this.pool.select({
                 count: sql<string>`count(*) OVER()`.as('count')
-            }).from(this.generic)
+            }).from(this.table)
                 .where(this.query.where)
 
             if (!count.length) {
@@ -102,33 +125,37 @@ export class GenericEmitter<T extends GenericTable> extends EventEmitter {
             this.emit('count', parseInt(count[0].count));
 
             let it = 0;
-            let pgres: any = [];
+            let fetched = 0;
             do {
-                pgres = await this.pool.select()
-                    .from(this.generic)
+                const pgres = await this.pool.select()
+                    .from(this.table)
                     .where(this.query.where)
                     .limit(100)
                     .offset(100 * it)
                 ++it;
 
+                fetched = pgres.length;
                 for (const row of pgres) {
-                    this.emit('data', row);
+                    this.emit('data', row as InferSelectModel<T>);
                 }
-            } while(pgres.length);
+            } while (fetched);
 
             this.emit('end');
         } catch (err) {
-            this.emit('error', err);
+            this.emit('error', err instanceof Error ? err : new Error(String(err)));
         }
     }
 }
 
-export default class Drizzle<T extends GenericTable> {
-    pool: PostgresJsDatabase<any>;
-    generic: PgTableWithColumns<any>;
+export default class Drizzle<
+    T extends GenericTable,
+    TSchema extends GenericSchema = GenericSchema
+> {
+    pool: PostgresJsDatabase<TSchema>;
+    generic: T;
 
     constructor(
-        pool: PostgresJsDatabase<any>,
+        pool: PostgresJsDatabase<TSchema>,
         generic: T
     ) {
         this.pool = pool;
@@ -136,36 +163,48 @@ export default class Drizzle<T extends GenericTable> {
     }
 
     /**
+     * The generic table widened to its base type - DrizzleORM's `from()`
+     * guards against data-modifying subqueries with a conditional type that
+     * cannot resolve against an unresolved type parameter
+     */
+    private get table(): GenericTable {
+        return this.generic;
+    }
+
+    /**
      * Pool to run read-only queries against - if the Pool was created with
      * dedicated read connection strings, reads are load balanced across them,
      * otherwise the write pool is used
      */
-    get readPool(): PostgresJsDatabase<any> {
-        if (this.pool instanceof Pool) return this.pool.read;
+    get readPool(): PostgresJsDatabase<TSchema> {
+        if (this.pool instanceof Pool) return this.pool.read as PostgresJsDatabase<TSchema>;
         return this.pool;
     }
 
     requiredPrimaryKey(): PgColumn {
         const primaryKey = this.primaryKey();
-        if (!primaryKey) throw new Err(500, null, `Cannot access ${this.generic.name} without primaryKey`);
+        if (!primaryKey) throw new Err(500, null, `Cannot access ${getTableName(this.generic)} without primaryKey`);
         return primaryKey;
     }
 
     primaryKey(): PgColumn | null {
-        let primaryKey;
-        for (const key in this.generic) {
-            if (this.generic[key].primary) primaryKey = this.generic[key];
+        const columns: Record<string, PgColumn> = getTableColumns(this.generic);
+
+        let primaryKey: PgColumn | null = null;
+        for (const key of Object.keys(columns)) {
+            if (columns[key].primary) primaryKey = columns[key];
         }
 
-        return primaryKey || null;
+        return primaryKey;
     }
 
     key(key: string): PgColumn {
-        if (this.generic[key]) return this.generic[key];
-        throw new Err(500, null, `Cannot access ${this.generic.name}.${key} as it does not exist`);
+        const columns: Record<string, PgColumn> = getTableColumns(this.generic);
+        if (columns[key]) return columns[key];
+        throw new Err(500, null, `Cannot access ${getTableName(this.generic)}.${key} as it does not exist`);
     }
 
-    stream(query: GenericStreamInput = {}): GenericEmitter<T> {
+    stream(query: GenericStreamInput = {}): GenericEmitter<T, TSchema> {
         const generic = new GenericEmitter(this.readPool, this.generic, query);
         generic.start();
         return generic;
@@ -185,7 +224,7 @@ export default class Drizzle<T extends GenericTable> {
             });
 
             for (const row of pgres.items) {
-                yield row as InferSelectModel<T>;
+                yield row;
             }
 
             page++;
@@ -201,7 +240,7 @@ export default class Drizzle<T extends GenericTable> {
     async count(query: GenericCountInput = {}): Promise<number> {
         const pgres = await this.readPool.select({
             count: sql<string>`count(*)`.as('count'),
-        }).from(this.generic)
+        }).from(this.table)
             .where(query.where)
 
         return parseInt(pgres[0].count);
@@ -225,7 +264,7 @@ export default class Drizzle<T extends GenericTable> {
         const partial = this.readPool.select({
             count: sql<string>`count(*) OVER()`.as('count'),
             generic: this.generic
-        }).from(this.generic)
+        }).from(this.table)
             .where(query.where)
             .orderBy(orderBy)
 
@@ -254,10 +293,10 @@ export default class Drizzle<T extends GenericTable> {
      *
      * @param {String|Number|SQL} id Primary key of the feature to fetch, or a custom SQL clause
      */
-    async from(id: unknown | SQL<unknown>): Promise<InferSelectModel<T>> {
+    async from(id: GenericID): Promise<InferSelectModel<T>> {
         const pgres = await this.readPool.select()
-            .from(this.generic)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
+            .from(this.table)
+            .where(is(id, SQL) ? id : eq(this.requiredPrimaryKey(), id))
             .limit(1)
 
         if (pgres.length !== 1) throw new Err(404, null, `Item Not Found`);
@@ -271,7 +310,7 @@ export default class Drizzle<T extends GenericTable> {
      * @param {String|Number|SQL} id Primary key of the feature to update, or a custom SQL clause
      * @param {Object} values Key/Value pairs of the fields to update
      */
-    async commit(id: unknown | SQL<unknown>, values: object): Promise<InferSelectModel<T>> {
+    async commit(id: GenericID, values: PgUpdateSetSource<T>): Promise<InferSelectModel<T>> {
         const vs = Object.values(values);
 
         if (
@@ -283,7 +322,7 @@ export default class Drizzle<T extends GenericTable> {
 
         const pgres = await this.pool.update(this.generic)
             .set(values)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
+            .where(is(id, SQL) ? id : eq(this.requiredPrimaryKey(), id))
             .returning();
 
         if (!pgres.length) throw new Err(404, null, 'Item Not Found');
@@ -296,12 +335,12 @@ export default class Drizzle<T extends GenericTable> {
     }
 
     async generate(
-        values: InferInsertModel<T>,
+        values: PgInsertValue<T>,
         opts?: GenerateOptions
     ): Promise<InferSelectModel<T>>;
 
     async generate(
-        values: Array<InferInsertModel<T>>,
+        values: Array<PgInsertValue<T>>,
         opts?: GenerateOptions
     ): Promise<Array<InferSelectModel<T>>>;
 
@@ -314,22 +353,22 @@ export default class Drizzle<T extends GenericTable> {
      * @param {String} opts.upsertTarget Column to target for the upsert operation, defaults to primary key
      */
     async generate(
-        values: InferInsertModel<T> | Array<InferInsertModel<T>>,
-        opts?: GenerateOptions
+        values: PgInsertValue<T> | Array<PgInsertValue<T>>,
+        opts: GenerateOptions = {}
     ): Promise<InferSelectModel<T> | Array<InferSelectModel<T>>> {
-        if (!opts) opts = {};
+        const insertValues = Array.isArray(values) ? values : [values];
 
         let pgres;
 
         try {
             if (opts.upsert && opts.upsert === GenerateUpsert.DO_NOTHING) {
                 pgres = await this.pool.insert(this.generic)
-                    .values(values)
+                    .values(insertValues)
                     .onConflictDoNothing()
                     .returning()
             } else if (opts.upsert && opts.upsert === GenerateUpsert.UPDATE) {
                 pgres = await this.pool.insert(this.generic)
-                    .values(values)
+                    .values(insertValues)
                     .onConflictDoUpdate({
                         target: opts.upsertTarget ? opts.upsertTarget : this.requiredPrimaryKey(),
                         set: conflictUpdateAll(this.generic)
@@ -337,7 +376,7 @@ export default class Drizzle<T extends GenericTable> {
                     .returning()
             } else {
                 pgres = await this.pool.insert(this.generic)
-                    .values(values)
+                    .values(insertValues)
                     .returning()
             }
         } catch (err) {
@@ -352,7 +391,6 @@ export default class Drizzle<T extends GenericTable> {
                     code: string;
                     severity: string;
                     detail: string;
-                    [key: string]: unknown;
                 };
 
                 if (pgError.code === '23505') {
@@ -377,26 +415,21 @@ export default class Drizzle<T extends GenericTable> {
      *
      *  @param {String|Number|SQL} id Primary key of the feature to delete, or a custom SQL clause
      */
-    async delete(id: unknown | SQL<unknown>): Promise<void> {
+    async delete(id: GenericID): Promise<void> {
         await this.pool.delete(this.generic)
-            .where(is(id, SQL)? id as SQL<unknown> : eq(this.requiredPrimaryKey(), id))
+            .where(is(id, SQL) ? id : eq(this.requiredPrimaryKey(), id))
     }
 }
 
-export function conflictUpdateAll<
-  T extends Table,
-  E extends (keyof T['$inferInsert'])[],
->(table: T) {
-  const columns = getTableColumns(table)
-  const updateColumns = Object.entries(columns)
+export function conflictUpdateAll<T extends GenericTable>(table: T): PgUpdateSetSource<T> {
+    const columns: Record<string, PgColumn> = getTableColumns(table);
 
-  return updateColumns.reduce(
-    (acc, [colName, table]) => ({
-      ...acc,
-      [colName]: sql.raw(`excluded.${table.name}`),
-    }),
-    {},
-  ) as Omit<Record<keyof typeof table.$inferInsert, SQL>, E[number]>
+    const update: Record<string, SQL> = {};
+    for (const [colName, column] of Object.entries(columns)) {
+        update[colName] = sql.raw(`excluded.${column.name}`);
+    }
+
+    return update as PgUpdateSetSource<T>;
 }
 
 export {

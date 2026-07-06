@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { eq, sql } from 'drizzle-orm';
+import type { Geometry } from 'geojson';
 import init from './init.js';
 import Modeler, { Pool, GenericListOrder, GenerateUpsert } from '../generic.js';
 import Err from '@openaddresses/batch-error';
@@ -186,7 +187,7 @@ test('Generic Generate - Non-Unique Constraint Error is rethrown', async () => {
     try {
         await ProfileModel.generate({
             username: 'not-null-violation',
-            callsign: null as unknown as string
+            callsign: sql`NULL`
         });
         assert.fail();
     } catch (err) {
@@ -204,7 +205,7 @@ test('Generic Generate - Non-Postgres Error is rethrown', async () => {
     try {
         await ProfileModel.generate({
             username: 'invalid-geometry-user',
-            location: { type: 'Point' } as unknown as { type: 'Point', coordinates: [number, number] }
+            location: { type: 'Point' } as Geometry
         });
         assert.fail();
     } catch (err) {
@@ -519,12 +520,12 @@ test('Generic Stream', async () => {
 
     const emitter = ProfileModel.stream();
 
-    const rows: Array<{ username: string }> = [];
+    const rows: Array<typeof pgschema.Profile.$inferSelect> = [];
     let count = 0;
 
     await new Promise<void>((resolve, reject) => {
-        emitter.on('count', (c: number) => { count = c; });
-        emitter.on('data', (row: { username: string }) => { rows.push(row); });
+        emitter.on('count', (c) => { count = c; });
+        emitter.on('data', (row) => { rows.push(row); });
         emitter.on('error', reject);
         emitter.on('end', resolve);
     });
@@ -544,12 +545,12 @@ test('Generic Stream - no results', async () => {
         where: eq(pgschema.Profile.username, 'does-not-exist')
     });
 
-    const rows: Array<unknown> = [];
+    const rows: Array<typeof pgschema.Profile.$inferSelect> = [];
     let count: number | undefined = undefined;
 
     await new Promise<void>((resolve, reject) => {
-        emitter.on('count', (c: number) => { count = c; });
-        emitter.on('data', (row: unknown) => { rows.push(row); });
+        emitter.on('count', (c) => { count = c; });
+        emitter.on('data', (row) => { rows.push(row); });
         emitter.on('error', reject);
         emitter.on('end', resolve);
     });
