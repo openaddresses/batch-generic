@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS "migrated" (
+    "id" INTEGER PRIMARY KEY
+);

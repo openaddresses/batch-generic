@@ -10,20 +10,55 @@ npm add @openaddresses/batch-generic
 
 ## Example Usage
 
-The Generic `Pool` object is simply a wrapper around the slonik `Pool` class.
-All classes that exist on the Slonik Pool are mirrored onto the Generic Pool
-with the addition of several functions related to generation of internal JSON
-schemas.
+The Generic `Pool` object is a wrapper around a Drizzle-ORM `PgDatabase`
+with the addition of several functions related to connection management
+and generation of internal JSON schemas.
 
 ```
 import { Pool } from '@openaddresses/batch-generic';
 
 async function start() {
-    const pool = await Pool.connect('<postgres://<conn-str>');
+    const pool = await Pool.connect('postgres://<conn-str>', schema);
 
     await pool.end();
 }
 ```
+
+### Write/Read Load Balancing
+
+If your database is deployed as a single writer with a cluster of read replicas,
+a `{ write, read }` pair of connection strings can be provided in place of a single
+connection string. Read queries issued by the `Modeler` (`from`, `list`, `count`,
+`iter`, `stream`) are load balanced round-robin across the read connection(s), while
+write queries (`generate`, `commit`, `delete`, `clear`) are issued against the write
+connection.
+
+```
+import Modeler, { Pool } from '@openaddresses/batch-generic';
+
+async function start() {
+    const pool = await Pool.connect({
+        write: 'postgres://writer.example.com:5432/db',
+        read: [
+            'postgres://reader-1.example.com:5432/db',
+            'postgres://reader-2.example.com:5432/db'
+        ]
+    }, schema);
+
+    const model = new Modeler(pool, schema.MyTable);
+
+    await model.from(1);        // routed to a reader
+    await model.commit(1, {});  // routed to the writer
+
+    // pool.read returns the next reader pool for custom read queries
+    await pool.read.select().from(schema.MyTable);
+
+    await pool.end();
+}
+```
+
+Note: read replicas are typically subject to replication lag - immediately reading
+back a row after a write may return stale data.
 
 ### Tables
 

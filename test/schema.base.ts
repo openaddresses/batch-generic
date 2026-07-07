@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { geometry, GeometryType, jsonb } from '../generic.js';
+import { geometry, GeometryType, jsonb, type Json } from '../generic.js';
 
 import {
     json,
@@ -17,7 +17,7 @@ export const Profile = pgTable('profile', {
     }>().notNull().default({}),
     config: jsonb('config').$type<{
         key?: string;
-        value?: unknown;
+        value?: Json;
     }>().notNull().default({}),
     created: timestamp({ withTimezone: true }).notNull().default(sql`Now()`),
     updated: timestamp({ withTimezone: true }).notNull().default(sql`Now()`),
@@ -27,4 +27,8 @@ export const Profile = pgTable('profile', {
     return {
         unq: unique().on(t.email)
     }
+});
+
+export const NoPk = pgTable('no_pk', {
+    name: varchar()
 });
