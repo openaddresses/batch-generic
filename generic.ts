@@ -112,17 +112,18 @@ export class GenericEmitter<
     async start() {
         try {
             const count = await this.pool.select({
-                count: sql<string>`count(*) OVER()`.as('count')
+                count: sql<string>`count(*)`.as('count')
             }).from(this.table)
                 .where(this.query.where)
 
-            if (!count.length) {
-                this.emit('count', 0)
+            const total = parseInt(count[0].count);
+
+            this.emit('count', total);
+
+            if (!total) {
                 this.emit('end');
                 return;
             }
-
-            this.emit('count', parseInt(count[0].count));
 
             let it = 0;
             let fetched = 0;

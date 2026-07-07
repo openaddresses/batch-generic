@@ -140,6 +140,7 @@ export default class Pool<TSchema extends GenericSchema = Record<string, never>>
             try {
                 pool = new Pool(connstr, {
                     ssl: opts.ssl,
+                    options: opts.options,
                     schema
                 });
 
