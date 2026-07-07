@@ -10,7 +10,7 @@
 
 ## Version History
 
-### v24.19.0
+### v25.0.0
 
 - :tada: Add support for a `{ write, read }` pair of connection strings in `Pool.connect`/`new Pool` with round-robin load balancing of Modeler read queries across readers
 - :bug: `Pool.connect` connection test now actually executes a query - previously an un-awaited query builder meant connection failures & retries were never detected
