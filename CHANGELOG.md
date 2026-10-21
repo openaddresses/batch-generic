@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v25.1.0
+
+- :arrow_up: Update Core Deps
+
 ### v25.0.0
 
 - :tada: Add support for a `{ write, read }` pair of connection strings in `Pool.connect`/`new Pool` with round-robin load balancing of Modeler read queries across readers
